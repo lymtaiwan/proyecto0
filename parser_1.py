@@ -111,6 +111,12 @@ def nop(command_nop:str) -> bool:
 
 
 def oneValueArg(one_value_arg_command:str):
+    """
+    recible una de las posibles funciones de un argumento y revisa si está escrita correctamente
+    
+    
+    """
+    
     
     one_value_arg_command = one_value_arg_command.rstrip(" ").lstrip(" ")
     
@@ -121,30 +127,49 @@ def oneValueArg(one_value_arg_command:str):
     works = works and True if index1 != -1 else works and False # si no hay "(" está mal escrito
     
     # condicion 2 - palabra permitida
-    base_command = one_value_arg_command[:index1].lstrip(" ")
+    base_command = one_value_arg_command[:index1].rstrip(" ")
     possible_base_command = ["walk", "leap", "drop","get", "grab", "letgo","turn","turnto"]
     works = works and True if base_command in possible_base_command else works and False
     
     # condicion 3 - parametros correctos 
     
-    base_argument = one_value_arg_command.rstrip(base_command).rstrip(" ")
+    base_argument = one_value_arg_command.replace(base_command,"").lstrip(" ")
     
-    if base_command not in ["turn", "turnto"]:
-        try:
-            while (base_command.count("(") > 0) and (base_command.count("(") == base_command.count(")")):
-                base_command.rstrip("(").rsplit(")")
-                break
+    print(base_command)
+    print(base_argument)
+    
+    argument = ""
+    
+    
+    try:
+        
+        while (base_argument.count("(") > 0) and (base_argument.count("(") == base_argument.count(")")) and (auxiliarParentesis(base_argument)):
+            
+            new_index1 = base_argument.find("(")
+            new_index2 = base_argument.find(")")
+            base_argument = base_argument[new_index1+1:new_index2]
+        
+        base_argument = base_argument.rstrip(" ").lstrip(" ")
+        
+        if base_command not in ["turn", "turnto"]:
+            argument = int(base_argument)
             
             
             
-        except:
-            print("a llorar")
+        elif base_command == "turn":
+            if base_argument not in ["left", "right", "around"]:
+                works = works and False
+        
+        elif base_command == "turnto":
+            
+            if base_argument not in ["north", "south", "east", "west"]:
+                works = works and False
+        
+    except:
+        works = works and False
     
     
-    
-    
-    
-    return False
+    return works
 
 """print("Hola taiwanes")
 print("arabia saudita")"""
@@ -162,3 +187,5 @@ def auxiliarParentesis(stringconparentesis:str) -> bool:
     return works
 
 
+
+print("hola taiwan")
