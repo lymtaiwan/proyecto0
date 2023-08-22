@@ -190,4 +190,4 @@ def auxiliarParentesis(stringconparentesis:str) -> bool:
 
 
 
-print(jump("jump(2, (  2) )"))
+print(jump("jump               (   (2) ,  1323  )"))
