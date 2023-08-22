@@ -86,8 +86,29 @@ def jump(command_jump:str)-> bool:
     
     return works
     
-print(jump("jump  (   (12),   13  )" ))
+#print(jump("jump  (   (12),   13  )" ))
 
-print("Hola taiwanes")
-print("arabia saudita")
+def nop(command_nop:str) -> bool:
+    
+    filtered_command = ""
+    
+    if "nop" in command_nop:
+        filtered_command = command_nop.strip("nop")
+    
+    filtered_command = filtered_command.replace(" ", "")
+    
+    works = True
+    
+    if filtered_command.count("()") != 1 or len(filtered_command) > 2:
+        works = False
+    
+    return works
+
+
+
+def oneValueArg()->bool:
+    return 
+
+"""print("Hola taiwanes")
+print("arabia saudita")"""
 
