@@ -10,6 +10,9 @@ program_info = {
 
 def defVar(line_content:list, program_info:dict) -> bool:
     
+    """
+    Le llegan valores así: ["defVar", "nom"," 0"]
+    """
     works = True
     
     var_name = str(line_content[1])
@@ -69,14 +72,14 @@ def jump(command_jump:str)-> bool:
                     possible_argument = possible_argument and possible_vars.__contains__(elemet)
                     
                 if possible_argument:
-                    print("XD")
+                    
                     
                     while num.count("(") == num.count(")") and num.count("(") > 0 and auxiliarParentesis(num):
                         num = num[1 :-1]
-                        print("XDXD")
+                        
                     
                 info_list.append(int(num))
-        print(info_list)
+        
         works = works and True
     except:
         works = works and False
@@ -135,8 +138,7 @@ def oneValueArg(one_value_arg_command:str):
     
     base_argument = one_value_arg_command.replace(base_command,"").lstrip(" ")
     
-    print(base_command)
-    print(base_argument)
+    
     
     argument = ""
     
@@ -188,4 +190,4 @@ def auxiliarParentesis(stringconparentesis:str) -> bool:
 
 
 
-print("hola taiwan")
+print(jump("jump(2, (  2) )"))
