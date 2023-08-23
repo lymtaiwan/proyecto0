@@ -42,13 +42,13 @@ def jump(command_jump:str)-> bool:
     
     """ 
     
-    command_info = command_jump.replace("jump","").lstrip(" ")
+    command_info = command_jump.replace("jump","").lstrip(" ").rstrip(" ")
     
     works = True
     
     works = works and command_info.count("(") == command_info.count(")")
     works = works and (command_info.count(",") == 1)
-    works = works and ("jump" in command_jump[:4])
+    works = works and ("jump" in command_jump.lstrip(" ")[:4])
     
     
 
@@ -197,6 +197,9 @@ def auxiliarParentesis(stringconparentesis:str) -> bool:
 
 
 
-print(oneValueArg("        walk((((12))))"))
+#print(oneValueArg("        walk((((12))))    "))
+
+#print(jump("   jump(12,2)    "))
+
 
 
