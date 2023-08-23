@@ -38,7 +38,7 @@ def jump(command_jump:str)-> bool:
     """ 
     lo ideal es que reciba un 'jump(valor_1 : int, valor_2 : int)' sin valores de espacio al rededor.
     
-    si taka lo quiere romper creo que no lo puede romper
+    si taka lo quiere romper creo que no lo puede romper - (si puede, espacios al inicio)
     
     """ 
     
@@ -115,7 +115,7 @@ def nop(command_nop:str) -> bool:
 
 def oneValueArg(one_value_arg_command:str):
     """
-    recible una de las posibles funciones de un argumento y revisa si está escrita correctamente
+    recible una de las posibles funciones de un argumento y revisa si está escrita correctamente 
     
     
     """
@@ -126,18 +126,22 @@ def oneValueArg(one_value_arg_command:str):
     works = True
     
     # condicion 1
-    index1 = str(one_value_arg_command).rfind("(")
+    index1 = str(one_value_arg_command).find("(")
     works = works and True if index1 != -1 else works and False # si no hay "(" está mal escrito
     
     # condicion 2 - palabra permitida
     base_command = one_value_arg_command[:index1].rstrip(" ")
     possible_base_command = ["walk", "leap", "drop","get", "grab", "letgo","turn","turnto"]
+    
+    print(base_command)
+    print(base_command in possible_base_command)
+    
     works = works and True if base_command in possible_base_command else works and False
     
     # condicion 3 - parametros correctos 
     
-    base_argument = one_value_arg_command.replace(base_command,"").lstrip(" ")
-    
+    base_argument = one_value_arg_command.replace(base_command,"").lstrip(" ") # lo que está entre ej: '(12)'
+ 
     
     
     argument = ""
@@ -148,8 +152,10 @@ def oneValueArg(one_value_arg_command:str):
         while (base_argument.count("(") > 0) and (base_argument.count("(") == base_argument.count(")")) and (auxiliarParentesis(base_argument)):
             
             new_index1 = base_argument.find("(")
-            new_index2 = base_argument.find(")")
+            new_index2 = base_argument.rfind(")")
             base_argument = base_argument[new_index1+1:new_index2]
+            
+            print(base_argument)
         
         base_argument = base_argument.rstrip(" ").lstrip(" ")
         
@@ -190,4 +196,7 @@ def auxiliarParentesis(stringconparentesis:str) -> bool:
 
 
 
-print(jump("jump               (   (2) ,  1323  )"))
+
+print(oneValueArg("        walk((((12))))"))
+
+
