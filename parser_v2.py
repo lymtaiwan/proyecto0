@@ -98,7 +98,6 @@ def twoValueArg(token:str,memoria:str, tipo1:str, tipo2):
     if chao_pez != None:
         base_argument = chao_pez
         
-    print(base_argument)
     
     lista_valores = base_argument.split(",")
     
@@ -115,4 +114,20 @@ def twoValueArg(token:str,memoria:str, tipo1:str, tipo2):
         
     return works
 
-"""print(twoValueArg("(((((12, left )))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
+"""print(twoValueArg("(((((1212, left)))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
+
+def noneValueArg(token:str):
+    
+    base_argument = token.rstrip(" ").lstrip(" ")
+    works = True
+    chao_pez = chao_pescado(base_argument)  # chao pez seria los argumentos sin los '(' ')'
+    
+    if chao_pez != None:
+        base_argument = chao_pez.rstrip(" ")
+    
+    if base_argument != "":
+        works = works and False
+    
+    return works
+
+""" print(noneValueArg("( (((((( ))))))     )")) # comprobacion noneValueArg """
