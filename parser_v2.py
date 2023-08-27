@@ -25,16 +25,43 @@ def auxiliar_parentesis(stringconparentesis:str) -> bool:
 
     return works
 
-def auxiliar_numero_en_memoria(numero_str,memoria) -> bool:
+def auxiliar_numero_en_memoria(numero_str,memoria,tipo) -> bool:
     for digito in numero_str:
-        if digito not in memoria["numeros"]:
+        if digito not in memoria[tipo]:
             return False
     return True
 
+def chao_pescado(base_argument):
+    
+    try:
+        
+        while (base_argument.count("(") > 0) and (base_argument.count("(") == base_argument.count(")")) and (auxiliar_parentesis(base_argument)):
+            
+            new_index1 = base_argument.find("(")
+            new_index2 = base_argument.rfind(")")
+            base_argument = base_argument[new_index1+1:new_index2]
+            
+        
+        base_argument = base_argument.rstrip(" ").lstrip(" ")
+        
+        return base_argument
+    
+    except:
+        
+        return None
+
+def enMemoria(cadena, memoria, tipo):
+    works = True
+    if (cadena not in memoria[tipo]):
+        if not auxiliar_numero_en_memoria(cadena,memoria,tipo):
+            works = False
+    
+    return works
 
 # funciones para leer argumentos:
 
 def oneValueArg(token:str, memoria:dict, tipo:str):
+    
     """
     Args:
         token (str): (((( valor ))))
@@ -45,38 +72,47 @@ def oneValueArg(token:str, memoria:dict, tipo:str):
         _type_: bool
     """
     
-    
     base_argument = token.rstrip(" ").lstrip(" ")
     
     works = True
         
-    try:
-        
-        while (base_argument.count("(") > 0) and (base_argument.count("(") == base_argument.count(")")) and (auxiliar_parentesis(base_argument)):
-            
-            new_index1 = base_argument.find("(")
-            new_index2 = base_argument.rfind(")")
-            base_argument = base_argument[new_index1+1:new_index2]
-            
-            print(base_argument)
-        
-        base_argument = base_argument.rstrip(" ").lstrip(" ")
-        
-        print(base_argument)
-        
-    except:
-        works = works and False
+    chao_pez = chao_pescado(base_argument)  # chao pez seria los argumentos sin los '(' ')'
+    if chao_pez != None:
+        base_argument = chao_pez
     
     
-    if (base_argument not in memoria[tipo]):
-        if not auxiliar_numero_en_memoria(base_argument,memoria):
-            works = False
+    works = works and enMemoria(base_argument,memoria,tipo)
         
     
     return works
-    
+
+#print(oneValueArg("(((((12222)))))",memoria,"numeros")) # comprobacion oneValueArg    
 
 def twoValueArg(token:str,memoria:str, tipo1:str, tipo2):
     
-    return
+    base_argument = token.lstrip(" ").rstrip(" ")
     
+    works = True
+        
+    chao_pez = chao_pescado(base_argument) # chao pez seria los argumentos sin los '(' ')'
+    if chao_pez != None:
+        base_argument = chao_pez
+        
+    print(base_argument)
+    
+    lista_valores = base_argument.split(",")
+    
+    if len(lista_valores) != 2:
+        works = False
+        
+    else:
+        
+        valor1 = lista_valores[0].lstrip(" ").rstrip(" ")
+        works = works and enMemoria(valor1,memoria,tipo1)
+        
+        valor2 = lista_valores[1].lstrip(" ").rstrip(" ")
+        works = works and enMemoria(valor2,memoria,tipo2)
+        
+    return works
+
+# print(twoValueArg("(((((12, left )))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg
