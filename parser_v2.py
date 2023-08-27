@@ -131,3 +131,32 @@ def noneValueArg(token:str):
     return works
 
 """ print(noneValueArg("( (((((( ))))))     )")) # comprobacion noneValueArg """
+
+
+# funciones de definicion 
+
+def defVarFuncional(line_content:list, memoria:dict) -> bool:
+    
+    """
+    Le llegan valores así: ["defVar", "nom","0"]
+    """
+    works = True
+    
+    var_name = line_content[1]
+    var_value = line_content[2]
+    
+    if len(line_content) != 3 :
+        works = works and False
+        
+    else:
+        
+        for i in memoria:
+            if enMemoria(var_value,memoria,i):
+                memoria[i].append(var_name) # en caso de extender el codigo aquí habria que agregar un espacio donde se almacene el valr de la variable
+
+        
+    return works
+
+
+"""print(defVarFuncional(["defVar", "nom","123"],memoria)) # comprobacion defvar
+print(twoValueArg("(((((nom, left)))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
