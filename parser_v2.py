@@ -86,7 +86,7 @@ def oneValueArg(token:str, memoria:dict, tipo:str):
     
     return works
 
-#print(oneValueArg("(((((12222)))))",memoria,"numeros")) # comprobacion oneValueArg    
+"""print(oneValueArg("(((((12222)))))",memoria,"numeros")) # comprobacion oneValueArg"""    
 
 def twoValueArg(token:str,memoria:str, tipo1:str, tipo2):
     
@@ -115,4 +115,4 @@ def twoValueArg(token:str,memoria:str, tipo1:str, tipo2):
         
     return works
 
-# print(twoValueArg("(((((12, left )))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg
+"""print(twoValueArg("(((((12, left )))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
