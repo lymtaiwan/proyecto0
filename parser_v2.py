@@ -1,3 +1,4 @@
+import re
 
 # variable para almacenar datos
 
@@ -176,3 +177,24 @@ def defVarFuncional(line_content:list, memoria:dict) -> bool:
 
 """print(defVarFuncional(["defVar", "nom","123"],memoria)) # comprobacion defvar
 print(twoValueArg("(((((nom, left)))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
+
+
+
+# funciones de lectura
+
+def tokenizacion_while(cadena:str)->list:
+    return list
+
+
+
+
+
+"""
+me acabo de enterar que hay una libreria que lit hace lo que yo hice 
+
+input_string = "((((((((( a aa, asd  ))))))"
+
+# Eliminar los paréntesis y espacios en blanco redundantes
+cleaned_string = re.sub(r'\s*[\(\)]\s*', '', input_string)
+
+print(cleaned_string)"""
