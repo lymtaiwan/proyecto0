@@ -26,12 +26,28 @@ def auxiliar_parentesis(stringconparentesis:str) -> bool:
     return works
 
 def auxiliar_numero_en_memoria(numero_str,memoria,tipo) -> bool:
+    
+    """ 
+    Revisa si el string se encuentra en la memoria, no necesariamente tiene que ser un número
+    
+    """
+    
+    
     for digito in numero_str:
         if digito not in memoria[tipo]:
             return False
     return True
 
 def chao_pescado(base_argument):
+    
+    """_summary_
+
+    Args:
+        base_argument (_type_): cadena entre "()"
+
+    Returns:
+        _type_: True si se logran quitar los "()", false si no.
+    """
     
     try:
         
