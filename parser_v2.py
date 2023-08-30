@@ -198,3 +198,36 @@ input_string = "((((((((( a aa, asd  ))))))"
 cleaned_string = re.sub(r'\s*[\(\)]\s*', '', input_string)
 
 print(cleaned_string)"""
+
+
+"""
+def divisor_texto(text:str):
+    functions = ['jump', 'walk', 'leap', 'turn', 'turnto', 'drop', 'get', 'grab', 'letGo', 'nop']
+    pattern = r'(' + '|'.join(functions) + r')\s*(.*?)(?=\s*(' + '|'.join(functions) + r')|$)'
+    matches = re.finditer(pattern, text)
+    result = []
+    for match in matches:
+        if match.group(1) not in functions:
+            return False
+        result.append(text[match.start():match.end()])
+    if not result:
+        return False
+    return result
+
+print(divisor_texto("walk(x)))))))) )"))
+"""
+
+def tokenizacion_acciones(text:str):
+    """
+    La función recibe una linea de codigo y se encarga de buscar si existen acciones
+    dentro de la linea, extraerlas junto a sus parametros y retornar esta información
+    """
+    
+    functions = ['jump', 'walk', 'leap', 'turn', 'turnto', 'drop', 'get', 'grab', 'letGo', 'nop']
+    pattern = r'(' + '|'.join(functions) + r')\s*(.*)'
+    match = re.search(pattern, text)
+    if match:
+        return [match.group(1), match.group(2)]
+    else:
+        return []
+"""print(tokenizacion_acciones(("jumpy(x     ,y)")))"""
