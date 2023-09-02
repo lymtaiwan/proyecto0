@@ -27,13 +27,14 @@ def lecturaPrograma(nombre_archivo:str):
     with open(nombre_archivo) as archivo:
         for linea in archivo:
             linea_sin_salto = linea.strip()
+            linea_sin_salto = linea_sin_salto.lower()
             lista_lineas.append(linea_sin_salto)
     
     memoria["contenido_programa"] = lista_lineas
     
     return
 
-"""(lecturaPrograma("ejemplo_programa.txt")) 
+(lecturaPrograma("ejemplo_programa.txt")) 
 print(memoria["contenido_programa"])#Probando la lectura de las lineas """
 
 
@@ -273,6 +274,10 @@ def defVarFuncional(line_content:list, memoria:dict) -> bool:
 
 """print(defVarFuncional(["defVar", "nom","123"],memoria)) # comprobacion defvar
 print(twoValueArg("(((((nom, left)))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
+
+
+# funciones acopladoras
+
 
 
 
