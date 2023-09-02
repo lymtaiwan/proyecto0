@@ -304,6 +304,9 @@ def assigmentFuncional(line_content: list):
     if count == 0:
         works = works and False # seria falso ya que no se ha declarado antes la variable
     
+    if line_content[1] != "=":
+        works = works and False 
+    
     
     datos_acomodados = ["defvar", nombre_variable, nuevo_valor]
     defVarWorks = (defVarFuncional(datos_acomodados, memoria))
@@ -318,7 +321,38 @@ print(memoria)#"""
 
 # funciones acopladoras
 
+def simpleCommand(line_content:list,):
+    """
+    Se le ingresa una lista de la forma [accion simple, argumento] y retorna si está bien o no. ej ["jump", "(12,3)"]. Ej 2. ["nop", "()"]
+    """
+    
+    token = line_content[0]
+    argumento = line_content[1]
+    
+    works = True
+    
+    if token == "jump":
+        funciona = twoValueArg(argumento,memoria,"numeros","numeros")
+        works = works and funciona
+    elif token == "walk" or token == "leap":
+        funciona = oneValueArg(argumento,memoria,"numeros") or twoValueArg(argumento,memoria,"numeros","direccion1") or twoValueArg(argumento,memoria,"numeros","punto_cardinal")
+        works = works and funciona
+    elif token == "turn":
+        funciona = oneValueArg(argumento,memoria,"direccion2")
+        works = works and funciona
+    elif token in ["turnto","facing"]:
+        funciona = oneValueArg(argumento,memoria,"punto_cardinal")
+        works = works and funciona
+    elif token in ["drop","get","grab","letgo"]:
+        funciona = oneValueArg(argumento,memoria,"numeros")
+        works = works and funciona
+    elif token == "nop":
+        funciona = noneValueArg(argumento)
+        works = works and funciona
+        
+    return works
 
+"""print(simpleCommand(["nop","( )"])) #"""
 
 
 # funciones de lectura
