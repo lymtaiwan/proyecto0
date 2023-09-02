@@ -8,7 +8,8 @@ memoria = {
     "punto_cardinal":["north", "south", "west", "east"],
     "direccion1": ["front", "right", "left", "back"], # direccion 1 no tiene 'around'
     "direccion2":["left", "right", "around"], # direccion 2 no tiene ni 'front' ni 'back'
-    "funciones": [] # aquí se van a almacenar las funciones que cree el ususario
+    "funciones": [], # aquí se van a almacenar las funciones que cree el ususario
+    "funciones_definidas" : {}, # {funcion:cantidad de parametros que recibe}
     
 }
 
@@ -105,7 +106,7 @@ def oneValueArg(token:str, memoria:dict, tipo:str):
 
 """print(oneValueArg("(((((12222)))))",memoria,"numeros")) # comprobacion oneValueArg"""    
 
-def twoValueArg(token:str,memoria:str, tipo1:str, tipo2):
+def twoValueArg(token:str,memoria:dict, tipo1:str, tipo2):
     
     base_argument = token.lstrip(" ").rstrip(" ")
     
@@ -133,6 +134,34 @@ def twoValueArg(token:str,memoria:str, tipo1:str, tipo2):
 
 """print(twoValueArg("(((((1212, left)))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
 
+def iValueArg(token:str, cantidad_datos):
+    
+    """
+    Funciona igual que los otros valueArg solo que este no revisa que el tipo de dato
+    
+    """
+    
+    
+    base_argument = token.lstrip(" ").rstrip(" ")
+    works = True
+    
+    chao_pez = chao_pescado(base_argument) # chao pez seria los argumentos sin los '(' ')'
+    
+    if chao_pez != None:
+        base_argument = chao_pez
+    
+    lista_valores = base_argument.split(",")
+    
+    if len(lista_valores) != cantidad_datos:
+        works = False
+    
+    # en este no se hace lo del tipo ya que si lo del tipo 
+    
+    return works
+
+"""print(iValueArg("(   ((( a, b,c   ))))", 3)) # comprobacion iValueArg"""
+
+
 def noneValueArg(token:str):
     
     base_argument = token.rstrip(" ").lstrip(" ")
@@ -151,6 +180,16 @@ def noneValueArg(token:str):
 
 
 # funciones de definicion 
+
+def defProcFuncional() -> bool:
+    
+    works = True
+    
+    
+    
+    
+    return works
+
 
 def defVarFuncional(line_content:list, memoria:dict) -> bool:
     
