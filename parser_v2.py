@@ -17,6 +17,11 @@ memoria = {
 # lectura de datos
 
 def lecturaPrograma(nombre_archivo:str):
+    """
+    El archivo queda cargado en 'memorias["contenido_programa"]'
+    El archivo que se quiere leer tiene que epecificar su tipo, ej: 'ejemplo_programa.txt'
+    
+    """
     
     lista_lineas = []
     with open(nombre_archivo) as archivo:
@@ -27,6 +32,9 @@ def lecturaPrograma(nombre_archivo:str):
     memoria["contenido_programa"] = lista_lineas
     
     return
+
+"""(lecturaPrograma("ejemplo_programa.txt")) 
+print(memoria["contenido_programa"])#Probando la lectura de las lineas """
 
 
 
