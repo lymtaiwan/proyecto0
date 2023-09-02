@@ -51,9 +51,16 @@ def chao_pescado(base_argument):
         _type_: True si se logran quitar los "()", false si no.
     """
     
+ 
+    
     try:
         
         while (base_argument.count("(") > 0) and (base_argument.count("(") == base_argument.count(")")) and (auxiliar_parentesis(base_argument)):
+            
+            base_argument = base_argument.rstrip(" ").lstrip(" ")
+            if  ((base_argument[0] not in [" ", "("]) or  (base_argument[-1] not in [" ", "", ")"])):
+                print("XD")
+                x = "0"-1 # forzando un error porque buenas practicas 
             
             new_index1 = base_argument.find("(")
             new_index2 = base_argument.rfind(")")
@@ -104,7 +111,7 @@ def oneValueArg(token:str, memoria:dict, tipo:str):
     
     return works
 
-"""print(oneValueArg("(((((12222)))))",memoria,"numeros")) # comprobacion oneValueArg"""    
+#print(oneValueArg("(  ((( (12222)) )))",memoria,"numeros")) # comprobacion oneValueArg"""    
 
 def twoValueArg(token:str,memoria:dict, tipo1:str, tipo2):
     
@@ -132,15 +139,16 @@ def twoValueArg(token:str,memoria:dict, tipo1:str, tipo2):
         
     return works
 
-"""print(twoValueArg("(((((1212, left)))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
+#print(twoValueArg("(((((1212, left)))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
 
 def iValueArg(token:str, cantidad_datos):
     
     """
     Funciona igual que los otros valueArg solo que este no revisa que el tipo de dato
     
-    """
+    La cantidad de datos que se le ingresa se puede encontrar con ' memoria["funciones_definidas"][ # nombre de la funcion # ] '
     
+    """
     
     base_argument = token.lstrip(" ").rstrip(" ")
     works = True
@@ -181,15 +189,39 @@ def noneValueArg(token:str):
 
 # funciones de definicion 
 
-def defProcFuncional() -> bool:
+def defProcFuncional_parte1(line_content: list, memoria:dict) -> bool:
+    
+    """
+    line_conntent = ["defProc", nombre_funcion, parametros]
+    
+    
+    """
     
     works = True
     
+    nombre_funcion = line_content[1]
+    base_argument = line_content[2]
     
+    works = True
     
+    chao_pez = chao_pescado(base_argument) # chao pez seria los argumentos sin los '(' ')'
+
+    if chao_pez != None:
+        base_argument = chao_pez   
+    else:
+        works = False
+        
+    
+    lista_valores = base_argument.split(",")
+    memoria["funciones_definidas"][nombre_funcion] = lista_valores
+    
+    if len(line_content) != 3 :
+        works = works and False
     
     return works
 
+"""print(defProcFuncional_parte1(["defProc", "himalaya", "(  ( (a, b,s)))"],memoria))
+print(memoria["funciones_definidas"]["himalaya"])#"""
 
 def defVarFuncional(line_content:list, memoria:dict) -> bool:
     
