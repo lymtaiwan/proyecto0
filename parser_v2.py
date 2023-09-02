@@ -87,7 +87,6 @@ def chao_pescado(base_argument):
             
             base_argument = base_argument.rstrip(" ").lstrip(" ")
             if  ((base_argument[0] not in [" ", "("]) or  (base_argument[-1] not in [" ", "", ")"])):
-                print("XD")
                 x = "0"-1 # forzando un error porque buenas practicas 
             
             new_index1 = base_argument.find("(")
@@ -189,13 +188,19 @@ def iValueArg(token:str, cantidad_datos):
     lista_valores = base_argument.split(",")
     
     if len(lista_valores) != cantidad_datos:
-        works = works and False
+        if cantidad_datos == 0:
+            if base_argument != "":
+                works = works and False
+    elif cantidad_datos == 1:
+        if base_argument == "":
+                works = works and False
+    
     
     # en este no se hace lo del tipo ya que si lo del tipo 
     
     return works
 
-"""print(iValueArg("(   ((( a, b,c   ))))", 3)) # comprobacion iValueArg"""
+print(iValueArg("((((  ))))", 1)) # comprobacion iValueArg"""
 
 
 def noneValueArg(token:str):
@@ -248,7 +253,7 @@ def defProcFuncional_parte1(line_content: list, memoria:dict) -> bool:
     
     return works
 
-"""print(defProcFuncional_parte1(["defProc", "himalaya", "(  ( (a, b,s)))"],memoria))
+"""print(defProcFuncional_parte1(["defProc", "himalaya", "(  ( ( )))"],memoria))
 print(memoria["funciones_definidas"]["himalaya"])#"""
 
 def defVarFuncional(line_content:list, memoria:dict) -> bool:
