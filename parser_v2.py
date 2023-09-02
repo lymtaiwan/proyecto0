@@ -352,7 +352,7 @@ def simpleCommand(line_content:list,):
         
     return works
 
-"""print(simpleCommand(["nop","( )"])) #"""
+"""print(simpleCommand(["facing","( north)"])) #"""
 
 
 # funciones de lectura
