@@ -4,6 +4,7 @@ import re
 
 memoria = {
     
+    "contenido_programa": None, # se mete aquí el contenido del programa
     "numeros": [(str(i)) for i in range(0,10)],
     "punto_cardinal":["north", "south", "west", "east"],
     "direccion1": ["front", "right", "left", "back"], # direccion 1 no tiene 'around'
@@ -12,6 +13,22 @@ memoria = {
     "funciones_definidas" : {}, # {funcion:cantidad de parametros que recibe}
     
 }
+
+# lectura de datos
+
+def lecturaPrograma(nombre_archivo:str):
+    
+    lista_lineas = []
+    with open(nombre_archivo) as archivo:
+        for linea in archivo:
+            linea_sin_salto = linea.strip()
+            lista_lineas.append(linea_sin_salto)
+    
+    memoria["contenido_programa"] = lista_lineas
+    
+    return
+
+
 
 # funciones auxiliares: 
 
