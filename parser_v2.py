@@ -4,7 +4,7 @@ import re
 
 memoria = {
     
-    "contenido_programa": None, # se mete aquí el contenido del programa
+    "contenido_programa": [], # se mete aquí el contenido del programa
     "numeros": [(str(i)) for i in range(0,10)],
     "punto_cardinal":["north", "south", "west", "east"],
     "direccion1": ["front", "right", "left", "back"], # direccion 1 no tiene 'around'
@@ -13,6 +13,8 @@ memoria = {
     "funciones_definidas" : {}, # {funcion:cantidad de parametros que recibe}
     
 }
+
+
 
 # lectura de datos
 
@@ -34,7 +36,7 @@ def lecturaPrograma(nombre_archivo:str):
     
     return
 
-(lecturaPrograma("ejemplo_programa.txt")) 
+"""(lecturaPrograma("ejemplo_programa.txt")) 
 print(memoria["contenido_programa"])#Probando la lectura de las lineas """
 
 
@@ -49,7 +51,7 @@ def auxiliar_parentesis(stringconparentesis:str) -> bool:
     
     works = True
     if index1 > index2:
-        works = False
+        works = works and False
 
     return works
 
@@ -105,7 +107,7 @@ def enMemoria(cadena, memoria, tipo):
     works = True
     if (cadena not in memoria[tipo]):
         if not auxiliar_numero_en_memoria(cadena,memoria,tipo):
-            works = False
+            works = works and False
     
     return works
 
@@ -153,7 +155,7 @@ def twoValueArg(token:str,memoria:dict, tipo1:str, tipo2):
     lista_valores = base_argument.split(",")
     
     if len(lista_valores) != 2:
-        works = False
+        works = works and False
         
     else:
         
@@ -165,7 +167,7 @@ def twoValueArg(token:str,memoria:dict, tipo1:str, tipo2):
         
     return works
 
-#print(twoValueArg("(((((1212, left)))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
+"""print(twoValueArg("(((((1212, left)))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
 
 def iValueArg(token:str, cantidad_datos):
     
@@ -187,7 +189,7 @@ def iValueArg(token:str, cantidad_datos):
     lista_valores = base_argument.split(",")
     
     if len(lista_valores) != cantidad_datos:
-        works = False
+        works = works and False
     
     # en este no se hace lo del tipo ya que si lo del tipo 
     
@@ -235,7 +237,7 @@ def defProcFuncional_parte1(line_content: list, memoria:dict) -> bool:
     if chao_pez != None:
         base_argument = chao_pez   
     else:
-        works = False
+        works = works and False
         
     
     lista_valores = base_argument.split(",")
@@ -259,21 +261,59 @@ def defVarFuncional(line_content:list, memoria:dict) -> bool:
     var_name = line_content[1]
     var_value = line_content[2]
     
-    if len(line_content) != 3 :
+    if len(line_content) != 3:
         works = works and False
         
     else:
         
+        count = 0
         for i in memoria:
             if enMemoria(var_value,memoria,i):
                 memoria[i].append(var_name) # en caso de extender el codigo aquí habria que agregar un espacio donde se almacene el valr de la variable
-
-        
+                count += 1
+        if count == 0:
+            works = works and False
+    
     return works
 
 
-"""print(defVarFuncional(["defVar", "nom","123"],memoria)) # comprobacion defvar
-print(twoValueArg("(((((nom, left)))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
+"""print(defVarFuncional(["defVar", "fotografia","123"],memoria)) # comprobacion defvar
+print(twoValueArg("(((((fotografia, left)))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
+
+def assigmentFuncional(line_content: list):
+    """
+    line_content[0] = nombre variable
+    line_content[1] = '='
+    line_content[2] = nuevo valor
+    
+    """
+    nombre_variable = line_content[0]
+    nuevo_valor = line_content[2]
+    
+    works = True
+    
+    count = 0 
+    
+    for i in memoria: # borra el registro que se tenia de la variable
+        posibles_variables = memoria[i]
+        if nombre_variable in posibles_variables: 
+            posibles_variables = [elemento for elemento in posibles_variables if elemento != nombre_variable]
+            memoria[i] = posibles_variables
+            count += 1
+    
+    if count == 0:
+        works = works and False # seria falso ya que no se ha declarado antes la variable
+    
+    
+    datos_acomodados = ["defvar", nombre_variable, nuevo_valor]
+    defVarWorks = (defVarFuncional(datos_acomodados, memoria))
+    works = works and defVarWorks
+    
+    return works
+
+"""print(assigmentFuncional(["fotografia", "=", "8"])) # si se quiere un retorno positivo hay que agregar el nombre de la variable a memoria
+print(memoria)#"""
+
 
 
 # funciones acopladoras
