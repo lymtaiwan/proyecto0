@@ -435,7 +435,8 @@ def tokenizacion_acciones(text:str):
 #print(tokenizacion_acciones(("jumpy(x     ,y); ")))
 
 def check_while(text: str) -> str:
-    if 'while' in text:
+    text = text.replace(" ", "")
+    if ('while' in text) and (text.startswith("while")):
         index = text.index('while')
         value = text[index + len('while'):]
         info = check_condicional(value)
@@ -494,17 +495,19 @@ def check_after_can(text:str):
 def check_after_canp(text):
     
     old_text =text
-    newtext = parentesis(text) + ";"
-    if newtext == old_text:
+    newtext = parentesis(text) 
+    if newtext == old_text or newtext == False:
         return False
     else:
+        newtext = newtext + ";"
         token = tokenizacion_acciones(newtext)
         result = simpleCommand(token)
         return result
     
 def check_whilebr(text:str):
     text = text.replace(" ", "")
-    if text.count('{') == 1 and text.count('}') == 1:
+    new_text = bracket_c(text)
+    if text != new_text and text.startswith("{"):
         start = text.index('{') + 1
         end = text.index('}')
         if end == len(text) - 1:
@@ -525,7 +528,116 @@ def check_whilebr(text:str):
         if valor == False:
             return False
             break
-        return valor
+    return valor
 
         
-#print(check_while("while can(walk(1 , north ) ) { walk(1 , north ) }"))
+#print(check_while(" while can(walk(1 , north ) ) { walk(1 , north ) ;jump(2,3) }"))
+
+def check_if(text:str):
+    text.replace(" ", "")
+    if ("if" in text) and (text.startswith("if")) and ("else" in text):
+        text = extract_if_else(text)
+        text_if = text[0]
+        text_else = text[1]
+        index = text_if.index('if')
+        value_if = text_if[index + len('if'):]
+        
+        index_else = text_else.index('else')
+        value_else = text_else[index_else + len('else'):]
+        
+        info = check_condicional(value_if)
+        info2 = check_else(value_else)
+        return info and info2
+    else:
+        return False    
+    
+def check_else(text:str):
+    text = text.replace(" ", "")
+    info = check_whilebr(text)
+    return info
+        
+            
+def extract_if_else(text: str):
+    index_if = text.index("if")
+    index_else = text.index("else")
+    after_if = text[index_if:index_else]
+    after_else = text[index_else:]
+    return after_if, after_else    
+
+
+
+def check_rep(text: str):
+    pattern = r'^repeat\s+\d+\s+times\s+\{.*\}$'
+    match = re.search(pattern, text)
+    index = text.index("times")
+    text_at = text[index + len("times"):]
+    bracket_ceck = bracket_c(text_at)
+    if bracket_ceck == text_at or bracket_ceck == False:
+        return False
+    value = check_whilebr(text_at)
+    
+    return bool(match) and value
+    
+
+
+
+def bracket_c(base_argument):
+    
+    """_summary_
+
+    Args:
+        base_argument (_type_): cadena entre "()"
+
+    Returns:
+        _type_: True si se logran quitar los "()", false si no.
+    """
+    
+ 
+    
+    try:
+        
+        while (base_argument.count("{") > 0) and (base_argument.count("{") == base_argument.count("}")) and (auxiliar_bracket(base_argument)):
+            
+            base_argument = base_argument.rstrip(" ").lstrip(" ")
+            if  ((base_argument[0] not in [" ", "{"]) or  (base_argument[-1] not in [" ", "", "}"])):
+                x = "0"-1 # forzando un error porque buenas practicas 
+            
+            new_index1 = base_argument.find("{")
+            new_index2 = base_argument.rfind("}")
+            base_argument = base_argument[new_index1+1:new_index2]
+            
+        
+        base_argument = base_argument.rstrip(" ").lstrip(" ")
+        
+        return base_argument
+    
+    except:
+        
+        return False
+    
+def auxiliar_bracket(stringconparentesis:str) -> bool:
+    """ revisa que los '(' se cierren de manera correcta, solo funciona para cada único par """
+    
+    index1 = stringconparentesis.find("{")
+    index2 = stringconparentesis.find("}")
+    
+    works = True
+    if index1 > index2:
+        works = works and False
+
+    return works
+
+#print(check_rep("repeat 8 times {}"))
+#print(check_if("if can(walk(3)){}else{}"))
+
+def revisar_bloque(text:str):
+    text = text.replace(" ", "")
+    check_1 = bracket_c(text)
+    
+    if text == check_1:
+        return False
+    else:
+        return check_1
+    
+print(revisar_bloque(""))
+    
