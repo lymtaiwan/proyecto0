@@ -663,7 +663,11 @@ def revisar_bloque(text:str):
                 value = check_if(item)
                 if value == False:
                     return False
-            
+            if item.startswith(lista_posible_i[13]):
+                #revisar si esta bien creada la funcion
+                #revisar si el bloque de la funcion esta bien
+                #guardar las acciones de la funcion en memoria
+                x = 0
                 
             
                 
@@ -687,8 +691,12 @@ def split_text(text: str):
     result.append(text[start:].strip())
     return result
 
+print(simpleCommand("jump(a,b)"))
 print(split_text("walk(3);jump(2,2);if can(walk(3,2)){jump(3,2);walk(2)}")) 
 print(revisar_bloque("{if can(drop(5)){drop(5)}else{nop()}}"))
 print(check_while("while can(jump(2,3)){jump(0,0)}"))
 print(check_rep("repeat 7 times {turnto(west);turnto(south)}"))
+
     
+print(defProcFuncional_parte1(["defProc","funcion","(a,b)"],memoria))
+print(memoria["funciones_definidas"]["funcion"])
