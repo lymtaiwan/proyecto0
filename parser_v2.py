@@ -441,24 +441,33 @@ def check_while(text: str) -> str:
         info = check_condicional(value)
         return info
     else:
-        return "The word 'while' is not in the text."
+        return False
     
 
     
 def check_condicional(text:str):
     text = text.replace(" ", "")
     if "facing" in text and (text.startswith("facing")):
-        token = tokenizacion_acciones(text)
+        if '{' in text:
+            index = text.index('{')
+            code_afterb = text[index:]
+            code_beforeb = text[:index] + ";"
+        else:
+            return False 
+        token = tokenizacion_acciones(code_beforeb)
         value = simpleCommand(token)
-        return value
+        value_2 = check_whilebr(code_afterb)
+        return value and value_2
     elif ("can" in text) and (text.startswith("can")):
         index = text.index('can')
         text_after_can = text[index + len("can"):]
         value = check_after_can(text_after_can)
         return value
     elif "not:" in text and (text.startswith("not:")):
-        index = text.index('not')
-        return text[index + len('not'):]
+        index = text.index('not:')
+        condition =  text[index + len('not:'):]
+        value = check_condicional(condition)
+        return value
     else:
         return False
     
@@ -509,12 +518,14 @@ def check_whilebr(text:str):
         return True
     lista_acciones = value.split(";")
     for accion in lista_acciones:
-        token = tokenizacion_acciones(accion)
+        token = tokenizacion_acciones(accion + ";")
         if token == False:
             return False
-        valor = simpleCommand(accion)
+        valor = simpleCommand(token)
         if valor == False:
             return False
             break
+        return valor
+
         
-print(check_while("while facing(north) {} "))
+#print(check_while("while can(walk(1 , north ) ) { walk(1 , north ) }"))
