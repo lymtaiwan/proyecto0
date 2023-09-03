@@ -168,14 +168,15 @@ def twoValueArg(token:str,memoria:dict, tipo1:str, tipo2):
 
 """print(twoValueArg("(((((1212, left)))))",memoria,"numeros","direccion2")) # comprobacion twoValueArg"""
 
-def iValueArg(token:str, cantidad_datos):
+def iValueArg(token:str, lista_parametros:list):
     
     """
-    Funciona igual que los otros valueArg solo que este no revisa que el tipo de dato
+    Funciona igual que los otros valueArg solo que este recibe la lista de los posibles parametros de la función
     
     La cantidad de datos que se le ingresa se puede encontrar con ' memoria["funciones_definidas"][ # nombre de la funcion # ] '
     
     """
+    cantidad_datos = len(lista_parametros)
     
     base_argument = token.lstrip(" ").rstrip(" ")
     works = True
@@ -187,7 +188,9 @@ def iValueArg(token:str, cantidad_datos):
     
     lista_valores = base_argument.split(",")
     
-    if len(lista_valores) != cantidad_datos:
+    
+    
+    if len(lista_valores) != cantidad_datos: 
         if cantidad_datos == 0:
             if base_argument != "":
                 works = works and False
@@ -195,12 +198,15 @@ def iValueArg(token:str, cantidad_datos):
         if base_argument == "":
                 works = works and False
     
+    for argumento in lista_valores:
+        if argumento not in lista_parametros:
+            works = works and False
     
     # en este no se hace lo del tipo ya que si lo del tipo 
     
     return works
 
-"""print(iValueArg("((((  ))))", 1)) # comprobacion iValueArg"""
+"""print(iValueArg("(((( 1,as ))))", ["1","a"])) # comprobacion iValueArg"""
 
 
 def noneValueArg(token:str):
