@@ -425,7 +425,7 @@ def tokenizacion_acciones(text:str):
     dentro de la linea, extraerlas junto a sus parametros y retornar esta información
     """
     
-    commands = ['jump', 'walk', 'leap', 'turn', 'turnto', 'drop', 'get', 'grab', 'letGo', 'nop','facing']
+    commands = ['jump', 'walk', 'leap', 'turnto', 'turn', 'drop', 'get', 'grab', 'letGo', 'nop','facing']
     pattern =  r'(' + '|'.join(commands) + r')\s*(.*);\s*$'
     match = re.search(pattern, text)
     if match:
@@ -457,7 +457,7 @@ def check_condicional(text:str):
             return False 
         token = tokenizacion_acciones(code_beforeb)
         value = simpleCommand(token)
-        value_2 = check_whilebr(code_afterb)
+        value_2 = revisar_bloque(code_afterb)
         return value and value_2
     elif ("can" in text) and (text.startswith("can")):
         index = text.index('can')
@@ -486,7 +486,7 @@ def check_after_can(text:str):
         result_1 = check_after_canp(code_beforeb)
         if result_1 == False:
             return False
-        result_2 = check_whilebr(code_afterb)
+        result_2 = revisar_bloque(code_afterb)
         if result_2 == False:
             return False
         else:
@@ -567,7 +567,8 @@ def extract_if_else(text: str):
 
 
 def check_rep(text: str):
-    pattern = r'^repeat\s+\d+\s+times\s+\{.*\}$'
+    text = text.replace(" ", "")
+    pattern = r'^repeat\s*\d+\s*times\s*\{.*\}$'
     match = re.search(pattern, text)
     index = text.index("times")
     text_at = text[index + len("times"):]
@@ -631,13 +632,63 @@ def auxiliar_bracket(stringconparentesis:str) -> bool:
 #print(check_if("if can(walk(3)){}else{}"))
 
 def revisar_bloque(text:str):
+    lista_posible_i = ["walk","jump","leap","turn","turnto","drop","get","grab","letGo","nop","while","repeat","if","defProc","defVar"]
     text = text.replace(" ", "")
     check_1 = bracket_c(text)
+    if text == "{}":
+        return True
     
-    if text == check_1:
+    if text == check_1 or not text.endswith("}") or not text.startswith("{"):
         return False
     else:
-        return check_1
-    
-print(revisar_bloque(""))
+        text = text[1:len(text)-1]
+        block_content = split_text(text)
+        
+        for item in block_content:
+            if item.startswith(lista_posible_i[0]) or item.startswith(lista_posible_i[1]) or item.startswith(lista_posible_i[2]) or item.startswith(lista_posible_i[3]) or item.startswith(lista_posible_i[4]) or item.startswith(lista_posible_i[5]) or item.startswith(lista_posible_i[6]) or item.startswith(lista_posible_i[7]) or item.startswith(lista_posible_i[8]) or item.startswith(lista_posible_i[9]):
+                token = tokenizacion_acciones(item + ";")
+                value = simpleCommand(token)
+                if value == False:
+                    return False
+            if item.startswith(lista_posible_i[10]):
+                value = check_while(item)
+                if value == False:
+                    return False
+                
+            if item.startswith(lista_posible_i[11]):
+                value = check_rep(item)
+                if value == False:
+                    return False
+            if item.startswith(lista_posible_i[12]):
+                value = check_if(item)
+                if value == False:
+                    return False
+            
+                
+            
+                
+        return True
+                
+                
+            
+
+def split_text(text: str):
+    result = []
+    start = 0
+    level = 0
+    for i, char in enumerate(text):
+        if char == "{":
+            level += 1
+        elif char == "}":
+            level -= 1
+        elif char == ";" and level == 0:
+            result.append(text[start:i].strip())
+            start = i + 1
+    result.append(text[start:].strip())
+    return result
+
+print(split_text("walk(3);jump(2,2);if can(walk(3,2)){jump(3,2);walk(2)}")) 
+print(revisar_bloque("{if can(drop(5)){drop(5)}else{nop()}}"))
+print(check_while("while can(jump(2,3)){jump(0,0)}"))
+print(check_rep("repeat 7 times {turnto(west);turnto(south)}"))
     
