@@ -26,17 +26,40 @@ def lecturaPrograma(nombre_archivo:str):
     """
     
     lista_lineas = []
+    
+    corchetes_abiertos = 0
+    corchetes_cerrados = 0
+    contenido_linea = " "
+    
+    
     with open(nombre_archivo) as archivo:
         for linea in archivo:
             linea_sin_salto = linea.strip()
             linea_sin_salto = linea_sin_salto.lower()
-            lista_lineas.append(linea_sin_salto)
-    
-    memoria["contenido_programa"] = lista_lineas
+            
+            if linea_sin_salto.rstrip(" ").lstrip(" ") == "{":
+                corchetes_abiertos += 1
+            if linea_sin_salto.rstrip(" ").lstrip(" ") == "}":
+                corchetes_cerrados += 1
+            
+            
+            if corchetes_abiertos == 0:
+                lista_lineas.append(linea_sin_salto)
+            else:
+                contenido_linea = lista_lineas[-1] + " " + linea_sin_salto
+                lista_lineas[-1] = contenido_linea
+                
+            if corchetes_abiertos == corchetes_cerrados:
+                corchetes_abiertos = 0
+                corchetes_cerrados = 0
+                lista_lineas.append("")
+
+        lista_filtrada = [elemento for elemento in lista_lineas if elemento != ""]
+    memoria["contenido_programa"] = lista_filtrada
     
     return
 
-"""(lecturaPrograma("ejemplo_programa.txt")) 
+(lecturaPrograma("ejemplo_programa.txt")) 
 print(memoria["contenido_programa"])#Probando la lectura de las lineas """
 
 
