@@ -384,3 +384,137 @@ input_string = "((((((((( a aa, asd  ))))))"
 cleaned_string = re.sub(r'\s*[\(\)]\s*', '', input_string)
 
 print(cleaned_string)"""
+
+def parentesis(base_argument):
+    
+    """_summary_
+
+    Args:
+        base_argument (_type_): cadena entre "()"
+
+    Returns:
+        _type_: True si se logran quitar los "()", false si no.
+    """
+    
+ 
+    
+    try:
+        
+        while (base_argument.count("(") > 1) and (base_argument.count("(") == base_argument.count(")")) and (auxiliar_parentesis(base_argument)):
+            
+            base_argument = base_argument.rstrip(" ").lstrip(" ")
+            if  ((base_argument[0] not in [" ", "("]) or  (base_argument[-1] not in [" ", "", ")"])):
+                x = "0"-1 # forzando un error porque buenas practicas 
+            
+            new_index1 = base_argument.find("(")
+            new_index2 = base_argument.rfind(")")
+            base_argument = base_argument[new_index1+1:new_index2]
+            
+        
+        base_argument = base_argument.rstrip(" ").lstrip(" ")
+        
+        return base_argument
+    
+    except:
+        
+        return False
+
+def tokenizacion_acciones(text:str):
+    """
+    La función recibe una linea de codigo y se encarga de buscar si existen acciones
+    dentro de la linea, extraerlas junto a sus parametros y retornar esta información
+    """
+    
+    commands = ['jump', 'walk', 'leap', 'turn', 'turnto', 'drop', 'get', 'grab', 'letGo', 'nop','facing']
+    pattern =  r'(' + '|'.join(commands) + r')\s*(.*);\s*$'
+    match = re.search(pattern, text)
+    if match:
+        return [match.group(1), match.group(2)]
+    else:
+        return False
+#print(tokenizacion_acciones(("jumpy(x     ,y); ")))
+
+def check_while(text: str) -> str:
+    if 'while' in text:
+        index = text.index('while')
+        value = text[index + len('while'):]
+        info = check_condicional(value)
+        return info
+    else:
+        return "The word 'while' is not in the text."
+    
+
+    
+def check_condicional(text:str):
+    text = text.replace(" ", "")
+    if "facing" in text and (text.startswith("facing")):
+        token = tokenizacion_acciones(text)
+        value = simpleCommand(token)
+        return value
+    elif ("can" in text) and (text.startswith("can")):
+        index = text.index('can')
+        text_after_can = text[index + len("can"):]
+        value = check_after_can(text_after_can)
+        return value
+    elif "not:" in text and (text.startswith("not:")):
+        index = text.index('not')
+        return text[index + len('not'):]
+    else:
+        return False
+    
+def check_after_can(text:str):
+    text = text.replace(" ","")
+    if text[0] != "(":
+        return False
+    else:
+        if '{' in text:
+            index = text.index('{')
+            code_afterb = text[index:]
+            code_beforeb = text[:index]
+        else:
+            return False 
+        result_1 = check_after_canp(code_beforeb)
+        if result_1 == False:
+            return False
+        result_2 = check_whilebr(code_afterb)
+        if result_2 == False:
+            return False
+        else:
+            return True
+            
+def check_after_canp(text):
+    
+    old_text =text
+    newtext = parentesis(text) + ";"
+    if newtext == old_text:
+        return False
+    else:
+        token = tokenizacion_acciones(newtext)
+        result = simpleCommand(token)
+        return result
+    
+def check_whilebr(text:str):
+    text = text.replace(" ", "")
+    if text.count('{') == 1 and text.count('}') == 1:
+        start = text.index('{') + 1
+        end = text.index('}')
+        if end == len(text) - 1:
+            value = text[start:end]
+        else:
+            return False
+    else:
+        return False
+    
+    if value == "":
+        return True
+    lista_acciones = value.split(";")
+    for accion in lista_acciones:
+        token = tokenizacion_acciones(accion)
+        if token == False:
+            return False
+        valor = simpleCommand(accion)
+        if valor == False:
+            return False
+            break
+        
+print(check_while("while facing(north) {} "))
