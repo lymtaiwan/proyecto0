@@ -200,34 +200,102 @@ cleaned_string = re.sub(r'\s*[\(\)]\s*', '', input_string)
 print(cleaned_string)"""
 
 
-"""
-def divisor_texto(text:str):
-    functions = ['jump', 'walk', 'leap', 'turn', 'turnto', 'drop', 'get', 'grab', 'letGo', 'nop']
-    pattern = r'(' + '|'.join(functions) + r')\s*(.*?)(?=\s*(' + '|'.join(functions) + r')|$)'
-    matches = re.finditer(pattern, text)
-    result = []
-    for match in matches:
-        if match.group(1) not in functions:
-            return False
-        result.append(text[match.start():match.end()])
-    if not result:
-        return False
-    return result
-
-print(divisor_texto("walk(x)))))))) )"))
-"""
-
 def tokenizacion_acciones(text:str):
     """
     La función recibe una linea de codigo y se encarga de buscar si existen acciones
     dentro de la linea, extraerlas junto a sus parametros y retornar esta información
     """
     
-    functions = ['jump', 'walk', 'leap', 'turn', 'turnto', 'drop', 'get', 'grab', 'letGo', 'nop']
-    pattern = r'(' + '|'.join(functions) + r')\s*(.*)'
+    commands = ['jump', 'walk', 'leap', 'turn', 'turnto', 'drop', 'get', 'grab', 'letGo', 'nop','facing']
+    pattern =  r'(' + '|'.join(commands) + r')\s*(.*);\s*$'
     match = re.search(pattern, text)
     if match:
         return [match.group(1), match.group(2)]
     else:
-        return []
-"""print(tokenizacion_acciones(("jumpy(x     ,y)")))"""
+        return False
+"""print(tokenizacion_acciones(("jumpy(x     ,y) ")))"""
+
+def check_while(text: str) -> str:
+    if 'while' in text:
+        index = text.index('while')
+        value = text[index + len('while'):]
+        info = check_condicional(value)
+        return info
+    else:
+        return "The word 'while' is not in the text."
+    
+
+    
+def check_condicional(text:str):
+    if "facing" in text:
+        #HAY QUE CORREGIR LA FUNCION A USAR PARA REVISAR FACING (ESTA EN MAIN)!!!!
+        token = tokenizacion_acciones(text)
+        value = oneValueArg(token)
+        return value
+    elif "can" in text:
+        index = text.index('can')
+        value = check_after_can(text)
+        return value
+    elif "not:" in text:
+        index = text.index('not')
+        return text[index + len('not'):]
+    else:
+        return False
+    
+def check_after_can(text:str):
+    text = text.replace(" ","")
+    if text[0] != "(":
+        return False
+    else:
+        if '{' in text:
+            index = text.index('{')
+            code_afterb = text[index:]
+            code_beforeb = text[:index-1]
+        else:
+            return False 
+        result_1 = check_after_canp(code_beforeb)
+        if result_1 == False:
+            return False
+        result_2 = check_whilebr(code_afterb)
+        if result_2 == False:
+            return False
+        else:
+            return True
+            
+def check_after_canp(text):
+    
+    info = chao_pescado(text)
+    if info == False:
+        return False
+    else:
+        token = tokenizacion_acciones(info)
+        result = oneValueArg(token)
+        return result
+    
+def check_whilebr(text:str):
+    text = text.replace(" ", "")
+    if text.count('{') == 1 and text.count('}') == 1:
+        start = text.index('{') + 1
+        end = text.index('}')
+        if end == len(text) - 1:
+            value = text[start:end]
+        else:
+            return False
+    else:
+        return False
+    
+    lista_acciones = value.split(";")
+    for accion in lista_acciones:
+        valor = oneValueArg(accion)
+        if valor == False:
+            return False
+            break
+            
+    
+
+print(check_while(" while cand(accion){accion}"))
+
+    
+    
+
+        
