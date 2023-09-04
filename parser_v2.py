@@ -11,7 +11,7 @@ memoria = {
     "direccion2":["left", "right", "around"], # direccion 2 no tiene ni 'front' ni 'back'
     "funciones": [], # aquí se van a almacenar las funciones que cree el ususario
     "funciones_definidas" : {}, # {funcion:cantidad de parametros que recibe}
-    
+    "comandos_funcion" : {}
 }
 
 
@@ -284,6 +284,12 @@ def defProcFuncional_parte1(line_content: list, memoria:dict) -> bool:
     lista_valores = base_argument.split(",")
     memoria["funciones_definidas"][nombre_funcion] = lista_valores
     
+    for valor in lista_valores:
+        memoria["numeros"].append(valor)
+        memoria["punto_cardinal"].append(valor)
+        memoria["direccion1"].append(valor)
+        memoria["direccion2"].append(valor)
+    
     if len(line_content) != 3 :
         works = works and False
     
@@ -414,3 +420,401 @@ input_string = "((((((((( a aa, asd  ))))))"
 cleaned_string = re.sub(r'\s*[\(\)]\s*', '', input_string)
 
 print(cleaned_string)"""
+
+def parentesis(base_argument):
+    
+    """_summary_
+
+    Args:
+        base_argument (_type_): cadena entre "()"
+
+    Returns:
+        _type_: True si se logran quitar los "()", false si no.
+    """
+    
+ 
+    
+    try:
+        
+        while (base_argument.count("(") > 1) and (base_argument.count("(") == base_argument.count(")")) and (auxiliar_parentesis(base_argument)):
+            
+            base_argument = base_argument.rstrip(" ").lstrip(" ")
+            if  ((base_argument[0] not in [" ", "("]) or  (base_argument[-1] not in [" ", "", ")"])):
+                x = "0"-1 # forzando un error porque buenas practicas 
+            
+            new_index1 = base_argument.find("(")
+            new_index2 = base_argument.rfind(")")
+            base_argument = base_argument[new_index1+1:new_index2]
+            
+        
+        base_argument = base_argument.rstrip(" ").lstrip(" ")
+        
+        return base_argument
+    
+    except:
+        
+        return False
+
+def tokenizacion_acciones(text:str):
+    """
+    La función recibe una linea de codigo y se encarga de buscar si existen acciones
+    dentro de la linea, extraerlas junto a sus parametros y retornar esta información
+    """
+    
+    commands = ['jump', 'walk', 'leap', 'turnto', 'turn', 'drop', 'get', 'grab', 'letGo', 'nop','facing']
+    pattern =  r'(' + '|'.join(commands) + r')\s*(.*);\s*$'
+    match = re.search(pattern, text)
+    if match:
+        return [match.group(1), match.group(2)]
+    else:
+        return False
+#print(tokenizacion_acciones(("jumpy(x     ,y); ")))
+
+def check_while(text: str) -> str:
+    text = text.replace(" ", "")
+    if ('while' in text) and (text.startswith("while")):
+        index = text.index('while')
+        value = text[index + len('while'):]
+        info = check_condicional(value)
+        return info
+    else:
+        return False
+    
+
+    
+def check_condicional(text:str):
+    text = text.replace(" ", "")
+    if "facing" in text and (text.startswith("facing")):
+        if '{' in text:
+            index = text.index('{')
+            code_afterb = text[index:]
+            code_beforeb = text[:index] + ";"
+        else:
+            return False 
+        token = tokenizacion_acciones(code_beforeb)
+        value = simpleCommand(token)
+        value_2 = revisar_bloque(code_afterb)
+        return value and value_2
+    elif ("can" in text) and (text.startswith("can")):
+        index = text.index('can')
+        text_after_can = text[index + len("can"):]
+        value = check_after_can(text_after_can)
+        return value
+    elif "not:" in text and (text.startswith("not:")):
+        index = text.index('not:')
+        condition =  text[index + len('not:'):]
+        value = check_condicional(condition)
+        return value
+    else:
+        return False
+    
+def check_after_can(text:str):
+    text = text.replace(" ","")
+    if text[0] != "(":
+        return False
+    else:
+        if '{' in text:
+            index = text.index('{')
+            code_afterb = text[index:]
+            code_beforeb = text[:index]
+        else:
+            return False 
+        result_1 = check_after_canp(code_beforeb)
+        if result_1 == False:
+            return False
+        result_2 = revisar_bloque(code_afterb)
+        if result_2 == False:
+            return False
+        else:
+            return True
+            
+def check_after_canp(text):
+    
+    old_text =text
+    newtext = parentesis(text) 
+    if newtext == old_text or newtext == False:
+        return False
+    else:
+        newtext = newtext + ";"
+        token = tokenizacion_acciones(newtext)
+        result = simpleCommand(token)
+        return result
+    
+def check_whilebr(text:str):
+    text = text.replace(" ", "")
+    new_text = bracket_c(text)
+    if text != new_text and text.startswith("{"):
+        start = text.index('{') + 1
+        end = text.index('}')
+        if end == len(text) - 1:
+            value = text[start:end]
+        else:
+            return False
+    else:
+        return False
+    
+    if value == "":
+        return True
+    lista_acciones = value.split(";")
+    for accion in lista_acciones:
+        token = tokenizacion_acciones(accion + ";")
+        if token == False:
+            return False
+        valor = simpleCommand(token)
+        if valor == False:
+            return False
+            break
+    return valor
+
+        
+#print(check_while(" while can(walk(1 , north ) ) { walk(1 , north ) ;jump(2,3) }"))
+
+def check_if(text:str):
+    text.replace(" ", "")
+    if ("if" in text) and (text.startswith("if")) and ("else" in text):
+        text = extract_if_else(text)
+        text_if = text[0]
+        text_else = text[1]
+        index = text_if.index('if')
+        value_if = text_if[index + len('if'):]
+        
+        index_else = text_else.index('else')
+        value_else = text_else[index_else + len('else'):]
+        
+        info = check_condicional(value_if)
+        info2 = check_else(value_else)
+        return info and info2
+    else:
+        return False    
+    
+def check_else(text:str):
+    text = text.replace(" ", "")
+    info = check_whilebr(text)
+    return info
+        
+            
+def extract_if_else(text: str):
+    index_if = text.index("if")
+    index_else = text.index("else")
+    after_if = text[index_if:index_else]
+    after_else = text[index_else:]
+    return after_if, after_else    
+
+
+
+def check_rep(text: str):
+    text = text.replace(" ", "")
+    pattern = r'^repeat\s*\d+\s*times\s*\{.*\}$'
+    match = re.search(pattern, text)
+    index = text.index("times")
+    text_at = text[index + len("times"):]
+    bracket_ceck = bracket_c(text_at)
+    if bracket_ceck == text_at or bracket_ceck == False:
+        return False
+    value = check_whilebr(text_at)
+    
+    return bool(match) and value
+    
+
+
+
+def bracket_c(base_argument):
+    
+    """_summary_
+
+    Args:
+        base_argument (_type_): cadena entre "()"
+
+    Returns:
+        _type_: True si se logran quitar los "()", false si no.
+    """
+    
+ 
+    
+    try:
+        
+        while (base_argument.count("{") > 0) and (base_argument.count("{") == base_argument.count("}")) and (auxiliar_bracket(base_argument)):
+            
+            base_argument = base_argument.rstrip(" ").lstrip(" ")
+            if  ((base_argument[0] not in [" ", "{"]) or  (base_argument[-1] not in [" ", "", "}"])):
+                x = "0"-1 # forzando un error porque buenas practicas 
+            
+            new_index1 = base_argument.find("{")
+            new_index2 = base_argument.rfind("}")
+            base_argument = base_argument[new_index1+1:new_index2]
+            
+        
+        base_argument = base_argument.rstrip(" ").lstrip(" ")
+        
+        return base_argument
+    
+    except:
+        
+        return False
+    
+def auxiliar_bracket(stringconparentesis:str) -> bool:
+    """ revisa que los '(' se cierren de manera correcta, solo funciona para cada único par """
+    
+    index1 = stringconparentesis.find("{")
+    index2 = stringconparentesis.find("}")
+    
+    works = True
+    if index1 > index2:
+        works = works and False
+
+    return works
+
+#print(check_rep("repeat 8 times {}"))
+#print(check_if("if can(walk(3)){}else{}"))
+
+def revisar_bloque(text:str):
+    
+    valor = True
+    lista_verdad = []
+    lista_posible_i = ["walk","jump","leap","turn","turnto","drop","get","grab","letGo","nop","while","repeat","if"]
+    text = text.replace(" ", "")
+    check_1 = bracket_c(text)
+    if text == "{}":
+        return True
+    
+    if text == check_1 or not text.endswith("}") or not text.startswith("{"):
+        return False
+    else:
+        text = text[1:len(text)-1]
+        block_content = split_text(text)
+        
+        for item in block_content:
+            funcion_propia = False
+            inicio = False
+            if item.startswith(lista_posible_i[0]) or item.startswith(lista_posible_i[1]) or item.startswith(lista_posible_i[2]) or item.startswith(lista_posible_i[3]) or item.startswith(lista_posible_i[4]) or item.startswith(lista_posible_i[5]) or item.startswith(lista_posible_i[6]) or item.startswith(lista_posible_i[7]) or item.startswith(lista_posible_i[8]) or item.startswith(lista_posible_i[9]):
+                token = tokenizacion_acciones(item + ";")
+                value = simpleCommand(token)
+                if value == False:
+                    return False
+                else:
+                    lista_verdad.append(True)
+            if item.startswith(lista_posible_i[10]):
+                value = check_while(item)
+                if value == False:
+                    return False
+                else:
+                    lista_verdad.append(True)
+                
+            if item.startswith(lista_posible_i[11]):
+                value = check_rep(item)
+                if value == False:
+                    return False
+                else:
+                    lista_verdad.append(True)
+            if item.startswith(lista_posible_i[12]):
+                value = check_if(item)
+                if value == False:
+                    return False
+                else:
+                    lista_verdad.append(True)
+                    
+            for key in memoria["funciones_definidas"].keys():
+                if item.startswith(key):
+                    funcion_propia =  True
+                    
+            if funcion_propia == True:
+                value = lector_funciones(item)  
+                if value == False:
+                    return value
+                else:
+                    lista_verdad.append(True)  
+            
+            if funcion_propia != True:    
+                for v in lista_posible_i:
+                    if v in item:
+                        inicio = True
+                lista_verdad.append(inicio)
+                
+        for verdad in lista_verdad:
+            valor = valor and verdad
+        return valor
+                
+                
+            
+
+def split_text(text: str):
+    result = []
+    start = 0
+    level = 0
+    for i, char in enumerate(text):
+        if char == "{":
+            level += 1
+        elif char == "}":
+            level -= 1
+        elif char == ";" and level == 0:
+            result.append(text[start:i].strip())
+            start = i + 1
+    result.append(text[start:].strip())
+    return result
+
+def bloque_proc(text:str):
+    text = text.replace(" ", "")
+    index1 = text.index("{")
+    index2 = text.index("(")
+    bloque = text[index1:]
+    nombre_proc = text[len("defProc"):index2]
+    parametros = text[index2:index1]
+    lista_val = ["defProc",nombre_proc,parametros]
+    value = defProcFuncional_parte1(lista_val,memoria)
+    if value == False:
+        return False
+    valor = revisar_bloque(bloque)
+    values_to_remove = chao_pescado(parametros)
+    values_to_remove = values_to_remove.split(",")
+    memoria["comandos_funcion"][nombre_proc] = bloque
+    memoria["numeros"] = [x for x in memoria["numeros"] if x not in values_to_remove]
+    memoria["direccion1"] = [x for x in memoria["direccion1"] if x not in values_to_remove]
+    memoria["direccion2"] = [x for x in memoria["direccion2"] if x not in values_to_remove]
+    memoria["punto_cardinal"] = [x for x in memoria["punto_cardinal"] if x not in values_to_remove]
+    
+    return valor
+
+def lector_funciones(text:str):
+    text = text.replace(" ","")
+    funcion_propia = False
+    for key in memoria["funciones_definidas"].keys():
+        if text.startswith(key):
+            funcion_propia =  True 
+            nombre_funcion = key
+            
+    if funcion_propia == True:
+        index1 = text.index(nombre_funcion)
+        text_after_name = text[index1 + len(nombre_funcion):]
+        lista_parametros = memoria["funciones_definidas"][nombre_funcion]
+        if text_after_name.startswith("("):
+            parametros = chao_pescado(text_after_name)
+            if parametros == text_after_name:
+                return False
+            parametros = parametros.split(",")
+            if len(parametros) != len(lista_parametros):
+                return False
+            
+            bloque_funcion = memoria["comandos_funcion"][nombre_funcion]
+            bloque_funcion = replace_parameters(bloque_funcion,parametros,lista_parametros)
+            value = revisar_bloque(bloque_funcion)
+        else:
+            return False
+    return value    
+             
+def replace_parameters(text:str,values:list,parameters:list):
+    for i in range(len(values)):
+        text = text.replace(f'({parameters[i]})', f'({values[i]})')
+        text = text.replace(f',{parameters[i]})', f',{values[i]})')
+        text = text.replace(f'({parameters[i]},', f'({values[i]},')
+        text = text.replace(f',{parameters[i]},', f',{values[i]},')
+    return text
+      
+            
+    
+    
+    
+
+#print(revisar_bloque("{while can(jump(2,3)){jump(3,2)}}"))
+print(bloque_proc("defProc hola(a,b){walk(a,b)}"))
+print(lector_funciones("hola(1,north)"))
+print(revisar_bloque("{walk(2);hola(1,north)}"))
