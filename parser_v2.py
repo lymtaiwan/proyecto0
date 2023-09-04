@@ -11,6 +11,7 @@ memoria = {
     "direccion2":["left", "right", "around"], # direccion 2 no tiene ni 'front' ni 'back'
     "funciones": [], # aquí se van a almacenar las funciones que cree el ususario
     "funciones_definidas" : {}, # {funcion:cantidad de parametros que recibe}
+    "comandos_funcion" : {} #se guarda como llave el nombre de una funcion y como valor las acciones declaradas en la funcion
     
 }
 
@@ -253,6 +254,12 @@ def defProcFuncional_parte1(line_content: list, memoria:dict) -> bool:
     
     lista_valores = base_argument.split(",")
     memoria["funciones_definidas"][nombre_funcion] = lista_valores
+    
+    for valor in lista_valores:
+        memoria["numeros"].append(valor)
+        memoria["punto_cardinal"].append(valor)
+        memoria["direccion1"].append(valor)
+        memoria["direccion2"].append(valor)
     
     if len(line_content) != 3 :
         works = works and False
@@ -632,7 +639,10 @@ def auxiliar_bracket(stringconparentesis:str) -> bool:
 #print(check_if("if can(walk(3)){}else{}"))
 
 def revisar_bloque(text:str):
-    lista_posible_i = ["walk","jump","leap","turn","turnto","drop","get","grab","letGo","nop","while","repeat","if","defProc","defVar"]
+    
+    valor = True
+    lista_verdad = []
+    lista_posible_i = ["walk","jump","leap","turn","turnto","drop","get","grab","letGo","nop","while","repeat","if"]
     text = text.replace(" ", "")
     check_1 = bracket_c(text)
     if text == "{}":
@@ -645,33 +655,44 @@ def revisar_bloque(text:str):
         block_content = split_text(text)
         
         for item in block_content:
+            inicio = False
             if item.startswith(lista_posible_i[0]) or item.startswith(lista_posible_i[1]) or item.startswith(lista_posible_i[2]) or item.startswith(lista_posible_i[3]) or item.startswith(lista_posible_i[4]) or item.startswith(lista_posible_i[5]) or item.startswith(lista_posible_i[6]) or item.startswith(lista_posible_i[7]) or item.startswith(lista_posible_i[8]) or item.startswith(lista_posible_i[9]):
                 token = tokenizacion_acciones(item + ";")
                 value = simpleCommand(token)
                 if value == False:
                     return False
+                else:
+                    lista_verdad.append(True)
             if item.startswith(lista_posible_i[10]):
                 value = check_while(item)
                 if value == False:
                     return False
+                else:
+                    lista_verdad.append(True)
                 
             if item.startswith(lista_posible_i[11]):
                 value = check_rep(item)
                 if value == False:
                     return False
+                else:
+                    lista_verdad.append(True)
             if item.startswith(lista_posible_i[12]):
                 value = check_if(item)
                 if value == False:
                     return False
-            if item.startswith(lista_posible_i[13]):
-                #revisar si esta bien creada la funcion
-                #revisar si el bloque de la funcion esta bien
-                #guardar las acciones de la funcion en memoria
-                x = 0
-                
+                else:
+                    lista_verdad.append(True)
+            
             
                 
-        return True
+            for v in lista_posible_i:
+                if v in item:
+                    inicio = True
+            lista_verdad.append(inicio)
+                
+        for verdad in lista_verdad:
+            valor = valor and verdad
+        return valor
                 
                 
             
@@ -691,12 +712,27 @@ def split_text(text: str):
     result.append(text[start:].strip())
     return result
 
-print(simpleCommand("jump(a,b)"))
-print(split_text("walk(3);jump(2,2);if can(walk(3,2)){jump(3,2);walk(2)}")) 
-print(revisar_bloque("{if can(drop(5)){drop(5)}else{nop()}}"))
-print(check_while("while can(jump(2,3)){jump(0,0)}"))
-print(check_rep("repeat 7 times {turnto(west);turnto(south)}"))
+def bloque_proc(text:str):
+    text = text.replace(" ", "")
+    index1 = text.index("{")
+    index2 = text.index("(")
+    bloque = text[index1:]
+    nombre_proc = text[len("defProc"):index2]
+    parametros = text[index2:index1]
+    lista_val = ["defProc",nombre_proc,parametros]
+    value = defProcFuncional_parte1(lista_val,memoria)
+    if value == False:
+        return False
+    valor = revisar_bloque(bloque)
+    return valor
 
+def lector_codigo(lista:list):
+    for iinea in lista:
+        x = 0
     
-print(defProcFuncional_parte1(["defProc","funcion","(a,b)"],memoria))
-print(memoria["funciones_definidas"]["funcion"])
+    
+    
+
+
+print(revisar_bloque("{while can(jump(2,3)){jump(3,2)}}"))
+print(bloque_proc("defProc hola(a,b){jump(a,b)}"))
