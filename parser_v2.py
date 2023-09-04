@@ -268,6 +268,11 @@ def defProcFuncional_parte1(line_content: list, memoria:dict) -> bool:
     
     chao_pez = chao_pescado(base_argument) # chao pez seria los argumentos sin los '(' ')'
 
+    
+    if base_argument.count("(") != base_argument.count(")"):
+        works = works and False
+
+    
     if chao_pez != None:
         base_argument = chao_pez   
     else:
@@ -282,7 +287,7 @@ def defProcFuncional_parte1(line_content: list, memoria:dict) -> bool:
     
     return works
 
-"""print(defProcFuncional_parte1(["defProc", "himalaya", "(  ( ( )))"],memoria))
+print(defProcFuncional_parte1(["defProc", "himalaya", "(  ( ( )))"],memoria))
 print(memoria["funciones_definidas"]["himalaya"])#"""
 
 def defVarFuncional(line_content:list, memoria:dict) -> bool:
