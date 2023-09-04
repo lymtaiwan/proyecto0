@@ -59,8 +59,8 @@ def lecturaPrograma(nombre_archivo:str):
     
     return
 
-(lecturaPrograma("ejemplo_programa.txt")) 
-print(memoria["contenido_programa"])#Probando la lectura de las lineas """
+#(lecturaPrograma("ejemplo_programa.txt")) 
+#print(memoria["contenido_programa"])#Probando la lectura de las lineas """
 
 
 
@@ -295,8 +295,8 @@ def defProcFuncional_parte1(line_content: list, memoria:dict) -> bool:
     
     return works
 
-print(defProcFuncional_parte1(["defProc", "himalaya", "(  ( ( )))"],memoria))
-print(memoria["funciones_definidas"]["himalaya"])#"""
+#print(defProcFuncional_parte1(["defProc", "himalaya", "(  ( ( )))"],memoria))
+#print(memoria["funciones_definidas"]["himalaya"])#"""
 
 def defVarFuncional(line_content:list, memoria:dict) -> bool:
     
@@ -571,6 +571,7 @@ def check_whilebr(text:str):
 
 def check_if(text:str):
     text.replace(" ", "")
+    text = text.lower()
     if ("if" in text) and (text.startswith("if")) and ("else" in text):
         text = extract_if_else(text)
         text_if = text[0]
@@ -604,6 +605,7 @@ def extract_if_else(text: str):
 
 def check_rep(text: str):
     text = text.replace(" ", "")
+    text = text.lower()
     pattern = r'^repeat\s*\d+\s*times\s*\{.*\}$'
     match = re.search(pattern, text)
     index = text.index("times")
@@ -671,7 +673,7 @@ def revisar_bloque(text:str):
     
     valor = True
     lista_verdad = []
-    lista_posible_i = ["walk","jump","leap","turn","turnto","drop","get","grab","letGo","nop","while","repeat","if"]
+    lista_posible_i = ["walk","jump","leap","turn","turnto","drop","get","grab","letgo","nop","while","repeat","if"]
     text = text.replace(" ", "")
     check_1 = bracket_c(text)
     if text == "{}":
@@ -684,6 +686,7 @@ def revisar_bloque(text:str):
         block_content = split_text(text)
         
         for item in block_content:
+            item = item.lower()
             funcion_propia = False
             inicio = False
             if item.startswith(lista_posible_i[0]) or item.startswith(lista_posible_i[1]) or item.startswith(lista_posible_i[2]) or item.startswith(lista_posible_i[3]) or item.startswith(lista_posible_i[4]) or item.startswith(lista_posible_i[5]) or item.startswith(lista_posible_i[6]) or item.startswith(lista_posible_i[7]) or item.startswith(lista_posible_i[8]) or item.startswith(lista_posible_i[9]):
@@ -810,11 +813,65 @@ def replace_parameters(text:str,values:list,parameters:list):
     return text
       
             
+def coronador(lista_archivo:list):  
+    lista_posible_i = ["walk","jump","leap","turn","turnto","drop","get","grab","letgo","nop","while","repeat","if"]
+    funcion_propia = False
+    inicio = False
+  
+    for linea in lista_archivo:
+        linea = linea.replace(" ", "")
+        if linea.startswith("{"):
+            value = revisar_bloque(linea)
+            if value == False:
+                return False
+            
+        elif linea.startswith("defproc"):
+            value = bloque_proc(linea)
+            if value == False:
+                return False
+            
+            
+        elif linea.startswith("defvar"):
+            value = defVarFuncional(linea,memoria)
+            if value == False:
+                return False
+            
+        elif linea.startswith(lista_posible_i[0]) or linea.startswith(lista_posible_i[1]) or linea.startswith(lista_posible_i[2]) or linea.startswith(lista_posible_i[3]) or linea.startswith(lista_posible_i[4]) or linea.startswith(lista_posible_i[5]) or linea.startswith(lista_posible_i[6]) or linea.startswith(lista_posible_i[7]) or linea.startswith(lista_posible_i[8]) or linea.startswith(lista_posible_i[9]):
+            value = simpleCommand(linea)
+            if value == False:
+                return False
+            
+        elif linea.startswith(lista_posible_i[10]):
+            value = check_while(linea)
+            if value == False:
+                return False
+            
+        elif linea.startswith(lista_posible_i[11]):
+            value = check_rep(linea)
+            if value == False:
+                return False
+            
+        elif linea.startswith(lista_posible_i[12]):
+            value = check_if(linea)
+            if value == False:
+                return False
+            
+        for key in memoria["funciones_definidas"].keys():
+                if linea.startswith(key):
+                    funcion_propia =  True
+        
+        if funcion_propia == True:
+            value = lector_funciones(linea)
+            if value == False:
+                return False
     
+        if funcion_propia != True:    
+                for v in lista_posible_i:
+                    if v in linea:
+                        inicio = True
+                
+    return inicio    
+        
     
-    
-
-#print(revisar_bloque("{while can(jump(2,3)){jump(3,2)}}"))
-print(bloque_proc("defProc hola(a,b){walk(a,b)}"))
-print(lector_funciones("hola(1,north)"))
-print(revisar_bloque("{walk(2);hola(1,north)}"))
+lecturaPrograma("ejemplo_programa.txt")
+print(coronador(memoria["contenido_programa"]))
