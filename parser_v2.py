@@ -11,8 +11,7 @@ memoria = {
     "direccion2":["left", "right", "around"], # direccion 2 no tiene ni 'front' ni 'back'
     "funciones": [], # aquí se van a almacenar las funciones que cree el ususario
     "funciones_definidas" : {}, # {funcion:cantidad de parametros que recibe}
-    "comandos_funcion" : {} #se guarda como llave el nombre de una funcion y como valor las acciones declaradas en la funcion
-    
+    "comandos_funcion" : {}
 }
 
 
@@ -27,17 +26,40 @@ def lecturaPrograma(nombre_archivo:str):
     """
     
     lista_lineas = []
+    
+    corchetes_abiertos = 0
+    corchetes_cerrados = 0
+    contenido_linea = " "
+    
+    
     with open(nombre_archivo) as archivo:
         for linea in archivo:
             linea_sin_salto = linea.strip()
             linea_sin_salto = linea_sin_salto.lower()
-            lista_lineas.append(linea_sin_salto)
-    
-    memoria["contenido_programa"] = lista_lineas
+            
+            if linea_sin_salto.rstrip(" ").lstrip(" ") == "{":
+                corchetes_abiertos += 1
+            if linea_sin_salto.rstrip(" ").lstrip(" ") == "}":
+                corchetes_cerrados += 1
+            
+            
+            if corchetes_abiertos == 0:
+                lista_lineas.append(linea_sin_salto)
+            else:
+                contenido_linea = lista_lineas[-1] + " " + linea_sin_salto
+                lista_lineas[-1] = contenido_linea
+                
+            if corchetes_abiertos == corchetes_cerrados:
+                corchetes_abiertos = 0
+                corchetes_cerrados = 0
+                lista_lineas.append("")
+
+        lista_filtrada = [elemento for elemento in lista_lineas if elemento != ""]
+    memoria["contenido_programa"] = lista_filtrada
     
     return
 
-"""(lecturaPrograma("ejemplo_programa.txt")) 
+(lecturaPrograma("ejemplo_programa.txt")) 
 print(memoria["contenido_programa"])#Probando la lectura de las lineas """
 
 
@@ -246,6 +268,13 @@ def defProcFuncional_parte1(line_content: list, memoria:dict) -> bool:
     
     chao_pez = chao_pescado(base_argument) # chao pez seria los argumentos sin los '(' ')'
 
+    
+    if base_argument.count("(") != base_argument.count(")"):
+        works = works and False
+
+    if nombre_funcion == "":
+        works = works and False
+    
     if chao_pez != None:
         base_argument = chao_pez   
     else:
@@ -266,7 +295,7 @@ def defProcFuncional_parte1(line_content: list, memoria:dict) -> bool:
     
     return works
 
-"""print(defProcFuncional_parte1(["defProc", "himalaya", "(  ( ( )))"],memoria))
+print(defProcFuncional_parte1(["defProc", "himalaya", "(  ( ( )))"],memoria))
 print(memoria["funciones_definidas"]["himalaya"])#"""
 
 def defVarFuncional(line_content:list, memoria:dict) -> bool:
@@ -655,6 +684,7 @@ def revisar_bloque(text:str):
         block_content = split_text(text)
         
         for item in block_content:
+            funcion_propia = False
             inicio = False
             if item.startswith(lista_posible_i[0]) or item.startswith(lista_posible_i[1]) or item.startswith(lista_posible_i[2]) or item.startswith(lista_posible_i[3]) or item.startswith(lista_posible_i[4]) or item.startswith(lista_posible_i[5]) or item.startswith(lista_posible_i[6]) or item.startswith(lista_posible_i[7]) or item.startswith(lista_posible_i[8]) or item.startswith(lista_posible_i[9]):
                 token = tokenizacion_acciones(item + ";")
@@ -682,13 +712,23 @@ def revisar_bloque(text:str):
                     return False
                 else:
                     lista_verdad.append(True)
+                    
+            for key in memoria["funciones_definidas"].keys():
+                if item.startswith(key):
+                    funcion_propia =  True
+                    
+            if funcion_propia == True:
+                value = lector_funciones(item)  
+                if value == False:
+                    return value
+                else:
+                    lista_verdad.append(True)  
             
-            
-                
-            for v in lista_posible_i:
-                if v in item:
-                    inicio = True
-            lista_verdad.append(inicio)
+            if funcion_propia != True:    
+                for v in lista_posible_i:
+                    if v in item:
+                        inicio = True
+                lista_verdad.append(inicio)
                 
         for verdad in lista_verdad:
             valor = valor and verdad
@@ -776,6 +816,5 @@ def replace_parameters(text:str,values:list,parameters:list):
 
 #print(revisar_bloque("{while can(jump(2,3)){jump(3,2)}}"))
 print(bloque_proc("defProc hola(a,b){walk(a,b)}"))
-print(lector_funciones("hola()"))
-
-
+print(lector_funciones("hola(1,north)"))
+print(revisar_bloque("{walk(2);hola(1,north)}"))
