@@ -272,6 +272,8 @@ def defProcFuncional_parte1(line_content: list, memoria:dict) -> bool:
     if base_argument.count("(") != base_argument.count(")"):
         works = works and False
 
+    if nombre_funcion == "":
+        works = works and False
     
     if chao_pez != None:
         base_argument = chao_pez   
