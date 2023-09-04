@@ -724,15 +724,58 @@ def bloque_proc(text:str):
     if value == False:
         return False
     valor = revisar_bloque(bloque)
+    values_to_remove = chao_pescado(parametros)
+    values_to_remove = values_to_remove.split(",")
+    memoria["comandos_funcion"][nombre_proc] = bloque
+    memoria["numeros"] = [x for x in memoria["numeros"] if x not in values_to_remove]
+    memoria["direccion1"] = [x for x in memoria["direccion1"] if x not in values_to_remove]
+    memoria["direccion2"] = [x for x in memoria["direccion2"] if x not in values_to_remove]
+    memoria["punto_cardinal"] = [x for x in memoria["punto_cardinal"] if x not in values_to_remove]
+    
     return valor
 
-def lector_codigo(lista:list):
-    for iinea in lista:
-        x = 0
+def lector_funciones(text:str):
+    text = text.replace(" ","")
+    funcion_propia = False
+    for key in memoria["funciones_definidas"].keys():
+        if text.startswith(key):
+            funcion_propia =  True 
+            nombre_funcion = key
+            
+    if funcion_propia == True:
+        index1 = text.index(nombre_funcion)
+        text_after_name = text[index1 + len(nombre_funcion):]
+        lista_parametros = memoria["funciones_definidas"][nombre_funcion]
+        if text_after_name.startswith("("):
+            parametros = chao_pescado(text_after_name)
+            if parametros == text_after_name:
+                return False
+            parametros = parametros.split(",")
+            if len(parametros) != len(lista_parametros):
+                return False
+            
+            bloque_funcion = memoria["comandos_funcion"][nombre_funcion]
+            bloque_funcion = replace_parameters(bloque_funcion,parametros,lista_parametros)
+            value = revisar_bloque(bloque_funcion)
+        else:
+            return False
+    return value    
+             
+def replace_parameters(text:str,values:list,parameters:list):
+    for i in range(len(values)):
+        text = text.replace(f'({parameters[i]})', f'({values[i]})')
+        text = text.replace(f',{parameters[i]})', f',{values[i]})')
+        text = text.replace(f'({parameters[i]},', f'({values[i]},')
+        text = text.replace(f',{parameters[i]},', f',{values[i]},')
+    return text
+      
+            
     
     
     
 
+#print(revisar_bloque("{while can(jump(2,3)){jump(3,2)}}"))
+print(bloque_proc("defProc hola(a,b){walk(a,b)}"))
+print(lector_funciones("hola()"))
 
-print(revisar_bloque("{while can(jump(2,3)){jump(3,2)}}"))
-print(bloque_proc("defProc hola(a,b){jump(a,b)}"))
+
