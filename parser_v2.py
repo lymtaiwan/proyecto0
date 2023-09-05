@@ -904,6 +904,6 @@ def coronador(lista_archivo:list):
     except Exception as e:
         print(repr(e))
         
-lecturaPrograma("ejemplo_programa.txt")
+lecturaPrograma("ejemplo_programa2.txt")
 #print(memoria["contenido_programa"])
 print(coronador(memoria["contenido_programa"]))
