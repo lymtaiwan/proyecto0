@@ -904,8 +904,6 @@ def coronador(lista_archivo:list):
     except Exception as e:
         print(repr(e))
         
-lista_ej = []    
 lecturaPrograma("ejemplo_programa.txt")
 #print(memoria["contenido_programa"])
-print(revisar_bloque("{ if can (walk(1,west)){walk(1 , west ) ; goWest () } else { nop () }}"))
 print(coronador(memoria["contenido_programa"]))
