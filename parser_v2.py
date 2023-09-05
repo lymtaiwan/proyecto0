@@ -566,13 +566,21 @@ def check_whilebr(text:str):
         return True
     lista_acciones = value.split(";")
     for accion in lista_acciones:
-        token = tokenizacion_acciones(accion + ";")
-        if token == False:
-            return False
-        valor = simpleCommand(token)
-        if valor == False:
-            return False
-            break
+        funcion_propia = False
+        for key in memoria["funciones_definidas"].keys():
+                if accion.startswith(key):
+                    funcion_propia =  True
+        if funcion_propia == False:
+            token = tokenizacion_acciones(accion + ";")
+            if token == False:
+                return False
+            valor = simpleCommand(token)
+            if valor == False:
+                return False
+                break
+        else:
+            valor = lector_funciones(accion)  
+            
     return valor
 
         
