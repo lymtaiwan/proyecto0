@@ -11,7 +11,8 @@ memoria = {
     "direccion2":["left", "right", "around"], # direccion 2 no tiene ni 'front' ni 'back'
     "funciones": [], # aquí se van a almacenar las funciones que cree el ususario
     "funciones_definidas" : {}, # {funcion:cantidad de parametros que recibe}
-    "comandos_funcion" : {}
+    "comandos_funcion" : {},
+    "nombre_variables" : []
 }
 
 
@@ -330,6 +331,7 @@ def defVarFuncional(line_content:list, memoria:dict) -> bool:
         if count == 0:
             works = works and False
     
+    memoria["nombre_variables"].append(var_name)
     return works
 
 
@@ -688,6 +690,7 @@ def auxiliar_bracket(stringconparentesis:str) -> bool:
 
 def revisar_bloque(text:str):
     
+    variable = False
     valor = True
     lista_verdad = []
     lista_posible_i = ["walk","jump","leap","turn","turnto","drop","get","grab","letgo","nop","while","repeat","if"]
@@ -711,6 +714,7 @@ def revisar_bloque(text:str):
         for item in block_content:
             item = item.lower()
             funcion_propia = False
+            variable = False
             inicio = False
             if item.startswith(lista_posible_i[0]) or item.startswith(lista_posible_i[1]) or item.startswith(lista_posible_i[2]) or item.startswith(lista_posible_i[3]) or item.startswith(lista_posible_i[4]) or item.startswith(lista_posible_i[5]) or item.startswith(lista_posible_i[6]) or item.startswith(lista_posible_i[7]) or item.startswith(lista_posible_i[8]) or item.startswith(lista_posible_i[9]):
                 token = tokenizacion_acciones(item + ";")
@@ -743,14 +747,37 @@ def revisar_bloque(text:str):
                 if item.startswith(key):
                     funcion_propia =  True
                     
+            for key in memoria["nombre_variables"]:
+                if item.startswith(key):
+                    variable =  True
+                    
+            if variable == True:
+                lista_var = []
+                index1 = item.index("=")
+                if index1 == None:
+                    return False
+                name = item[:index1]
+                asig = item[index1 + 1:]
+                lista_var.append(name)
+                lista_var.append("=")
+                lista_var.append(asig)
+                value = assigmentFuncional(lista_var)
+                if value == False:
+                    return False
+                else:
+                    lista_verdad.append(True)
+                    
             if funcion_propia == True:
                 value = lector_funciones(item)  
                 if value == False:
                     return value
                 else:
                     lista_verdad.append(True)  
-            
-            if funcion_propia != True:    
+        
+                
+            if funcion_propia == True or variable == True:
+                pass
+            else:
                 for v in lista_posible_i:
                     if v in item:
                         inicio = True
@@ -852,6 +879,7 @@ def replace_parameters(text:str,values:list,parameters:list):
 def coronador(lista_archivo:list):  
     lista_posible_i = ["walk","jump","leap","turn","turnto","drop","get","grab","letgo","nop","while","repeat","if"]
     funcion_propia = False
+    variable = False
     inicio = False
     try:
   
@@ -898,12 +926,30 @@ def coronador(lista_archivo:list):
                     if linea.startswith(key):
                         funcion_propia =  True
             
+            for key in memoria["nombre_variables"]:
+                if linea.startswith(key):
+                    variable =  True
+                    
+            if variable == True:
+                lista_var = []
+                index1 = linea.index("=")
+                if index1 == None:
+                    return False
+                name = linea[:index1]
+                asig = linea[index1+1:]
+                lista_var.append(name)
+                lista_var.append("=")
+                lista_var.append(asig)
+                value = assigmentFuncional(lista_var)
+                if value == False:
+                    return False
+            
             if funcion_propia == True:
                 value = lector_funciones(linea)
                 if value == False:
                     return False
         
-            if funcion_propia != True:    
+            if (funcion_propia != True) or (variable != True):    
                     for v in lista_posible_i:
                         if v in linea or "defvar" in linea or "defproc" in linea:
                             inicio = True
@@ -912,6 +958,7 @@ def coronador(lista_archivo:list):
     except Exception as e:
         print(repr(e))
         
-lecturaPrograma("ejemplo_programa2.txt")
+archivo = input("ingrese el nombre del archivo que se desea revisar: ")
+lecturaPrograma(archivo)
 #print(memoria["contenido_programa"])
 print(coronador(memoria["contenido_programa"]))
