@@ -1,5 +1,25 @@
 import re
 
+"""
+    
+    Proyecto 0 
+    
+    hecho por: 
+    
+    Esteban Benavides - 202220429
+    Juan Diego Niebles Navas - 202221193
+    
+    Instrucciones: 
+    
+    Para ver si el lenguaje se ejecuta de mannera correcta, hay que ejecutar el parser_v2.py y escribir el nombre del archivo.
+    El archivo que se va a analizar tiene que estar dentro de la carpeta donde se encuentra parser_v2.py.
+    
+    El proyecto se encuentra disponible de forma pública en: https://github.com/lymtaiwan/proyecto0
+    
+"""
+
+
+
 # variable para almacenar datos
 
 memoria = {
@@ -964,8 +984,19 @@ def coronador(lista_archivo:list):
         return inicio
     except Exception as e:
         print(repr(e))
-        
-archivo = input("ingrese el nombre del archivo que se desea revisar: ")
-lecturaPrograma(archivo)
-#print(memoria["contenido_programa"])
-print(coronador(memoria["contenido_programa"]))
+
+
+print("Bienvenido al analizador de textos.")
+try: 
+    archivo = input("ingrese el nombre del archivo que se desea revisar (Ej. ejemplo_programa.txt ): ")
+    lecturaPrograma(archivo)
+    #print(memoria["contenido_programa"])
+    print(coronador(memoria["contenido_programa"]))
+    
+    if coronador(memoria["contenido_programa"]):
+        print("El programa funciona de manera correcta. ")
+    else:
+        print("El programa no funciona de manera correcta.")
+
+except:
+    print("Reinicie el programa e intente ingresar el nombre de un archivo que se encuentre dentro de la misma carpeta que este programa. (Ej. ejemplo_programa.txt ) ")
