@@ -40,6 +40,7 @@ def lecturaPrograma(nombre_archivo:str):
             
             if linea_sin_salto.rstrip(" ").lstrip(" ") == "{":
                 corchetes_abiertos += 1
+                
             if linea_sin_salto.rstrip(" ").lstrip(" ") == "}":
                 corchetes_cerrados += 1
             
@@ -49,6 +50,7 @@ def lecturaPrograma(nombre_archivo:str):
             else:
                 
                 try:
+                    
     
                     if "defproc" in lista_lineas[-2]:
                         contenido_linea = lista_lineas[-2] + linea_sin_salto
@@ -56,6 +58,12 @@ def lecturaPrograma(nombre_archivo:str):
                     else:
                         contenido_linea = lista_lineas[-1] + linea_sin_salto
                         lista_lineas[-1] = contenido_linea
+                        
+                    if contenido_linea.count("{") > corchetes_abiertos:
+                        corchetes_abiertos =  contenido_linea.count("{") 
+                    if contenido_linea.count("}") > corchetes_cerrados:
+                        corchetes_cerrados =  contenido_linea.count("}")# """
+                    
                 except:
                     contenido_linea = lista_lineas[-1] + linea_sin_salto
                     lista_lineas[-1] = contenido_linea
@@ -68,8 +76,7 @@ def lecturaPrograma(nombre_archivo:str):
         lista_filtrada = [elemento for elemento in lista_lineas if elemento != ""]
     memoria["contenido_programa"] = lista_filtrada
     
-    return
-#(lecturaPrograma("ejemplo_programa.txt")) 
+    return#(lecturaPrograma("ejemplo_programa.txt")) 
 #print(memoria["contenido_programa"])#Probando la lectura de las lineas """
 
 

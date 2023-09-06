@@ -38,4 +38,5 @@ defProc safeWalk ( n )
         turnto ( south ) ;
         safeWalk (1) ;
         fill ()
-    }}
+    }
+}
