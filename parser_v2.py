@@ -11,7 +11,8 @@ memoria = {
     "direccion2":["left", "right", "around"], # direccion 2 no tiene ni 'front' ni 'back'
     "funciones": [], # aquí se van a almacenar las funciones que cree el ususario
     "funciones_definidas" : {}, # {funcion:cantidad de parametros que recibe}
-    "comandos_funcion" : {}
+    "comandos_funcion" : {},
+    "nombre_variables" : []
 }
 
 
@@ -39,6 +40,7 @@ def lecturaPrograma(nombre_archivo:str):
             
             if linea_sin_salto.rstrip(" ").lstrip(" ") == "{":
                 corchetes_abiertos += 1
+                
             if linea_sin_salto.rstrip(" ").lstrip(" ") == "}":
                 corchetes_cerrados += 1
             
@@ -46,8 +48,25 @@ def lecturaPrograma(nombre_archivo:str):
             if corchetes_abiertos == 0:
                 lista_lineas.append(linea_sin_salto)
             else:
-                contenido_linea = lista_lineas[-1] + " " + linea_sin_salto
-                lista_lineas[-1] = contenido_linea
+                
+                try:
+                    
+    
+                    if "defproc" in lista_lineas[-2]:
+                        contenido_linea = lista_lineas[-2] + linea_sin_salto
+                        lista_lineas[-2] = contenido_linea
+                    else:
+                        contenido_linea = lista_lineas[-1] + linea_sin_salto
+                        lista_lineas[-1] = contenido_linea
+                        
+                    if contenido_linea.count("{") > corchetes_abiertos:
+                        corchetes_abiertos =  contenido_linea.count("{") 
+                    if contenido_linea.count("}") > corchetes_cerrados:
+                        corchetes_cerrados =  contenido_linea.count("}")# """
+                    
+                except:
+                    contenido_linea = lista_lineas[-1] + linea_sin_salto
+                    lista_lineas[-1] = contenido_linea
                 
             if corchetes_abiertos == corchetes_cerrados:
                 corchetes_abiertos = 0
@@ -57,10 +76,8 @@ def lecturaPrograma(nombre_archivo:str):
         lista_filtrada = [elemento for elemento in lista_lineas if elemento != ""]
     memoria["contenido_programa"] = lista_filtrada
     
-    return
-
-(lecturaPrograma("ejemplo_programa.txt")) 
-print(memoria["contenido_programa"])#Probando la lectura de las lineas """
+    return#(lecturaPrograma("ejemplo_programa.txt")) 
+#print(memoria["contenido_programa"])#Probando la lectura de las lineas """
 
 
 
@@ -295,8 +312,8 @@ def defProcFuncional_parte1(line_content: list, memoria:dict) -> bool:
     
     return works
 
-print(defProcFuncional_parte1(["defProc", "himalaya", "(  ( ( )))"],memoria))
-print(memoria["funciones_definidas"]["himalaya"])#"""
+#print(defProcFuncional_parte1(["defProc", "himalaya", "(  ( ( )))"],memoria))
+#print(memoria["funciones_definidas"]["himalaya"])#"""
 
 def defVarFuncional(line_content:list, memoria:dict) -> bool:
     
@@ -321,6 +338,7 @@ def defVarFuncional(line_content:list, memoria:dict) -> bool:
         if count == 0:
             works = works and False
     
+    memoria["nombre_variables"].append(var_name)
     return works
 
 
@@ -461,7 +479,7 @@ def tokenizacion_acciones(text:str):
     dentro de la linea, extraerlas junto a sus parametros y retornar esta información
     """
     
-    commands = ['jump', 'walk', 'leap', 'turnto', 'turn', 'drop', 'get', 'grab', 'letGo', 'nop','facing']
+    commands = ['jump', 'walk', 'leap', 'turnto', 'turn', 'drop', 'get', 'grab', 'letgo', 'nop','facing']
     pattern =  r'(' + '|'.join(commands) + r')\s*(.*);\s*$'
     match = re.search(pattern, text)
     if match:
@@ -557,13 +575,21 @@ def check_whilebr(text:str):
         return True
     lista_acciones = value.split(";")
     for accion in lista_acciones:
-        token = tokenizacion_acciones(accion + ";")
-        if token == False:
-            return False
-        valor = simpleCommand(token)
-        if valor == False:
-            return False
-            break
+        funcion_propia = False
+        for key in memoria["funciones_definidas"].keys():
+                if accion.startswith(key):
+                    funcion_propia =  True
+        if funcion_propia == False:
+            token = tokenizacion_acciones(accion + ";")
+            if token == False:
+                return False
+            valor = simpleCommand(token)
+            if valor == False:
+                return False
+                break
+        else:
+            valor = lector_funciones(accion)  
+            
     return valor
 
         
@@ -571,6 +597,7 @@ def check_whilebr(text:str):
 
 def check_if(text:str):
     text.replace(" ", "")
+    text = text.lower()
     if ("if" in text) and (text.startswith("if")) and ("else" in text):
         text = extract_if_else(text)
         text_if = text[0]
@@ -604,6 +631,7 @@ def extract_if_else(text: str):
 
 def check_rep(text: str):
     text = text.replace(" ", "")
+    text = text.lower()
     pattern = r'^repeat\s*\d+\s*times\s*\{.*\}$'
     match = re.search(pattern, text)
     index = text.index("times")
@@ -669,11 +697,14 @@ def auxiliar_bracket(stringconparentesis:str) -> bool:
 
 def revisar_bloque(text:str):
     
+    variable = False
     valor = True
     lista_verdad = []
-    lista_posible_i = ["walk","jump","leap","turn","turnto","drop","get","grab","letGo","nop","while","repeat","if"]
+    lista_posible_i = ["walk","jump","leap","turn","turnto","drop","get","grab","letgo","nop","while","repeat","if"]
     text = text.replace(" ", "")
     check_1 = bracket_c(text)
+    if text[1:len(text)-1].startswith("if") or text[1:len(text)-1].startswith("while") or text[1:len(text)-1].startswith("repeat"):
+        check_1 = "dif"
     if text == "{}":
         return True
     
@@ -681,10 +712,16 @@ def revisar_bloque(text:str):
         return False
     else:
         text = text[1:len(text)-1]
-        block_content = split_text(text)
+        if text.startswith("if"):
+            block_content = []
+            block_content.append(text)
+        else:
+            block_content = split_text(text)
         
         for item in block_content:
+            item = item.lower()
             funcion_propia = False
+            variable = False
             inicio = False
             if item.startswith(lista_posible_i[0]) or item.startswith(lista_posible_i[1]) or item.startswith(lista_posible_i[2]) or item.startswith(lista_posible_i[3]) or item.startswith(lista_posible_i[4]) or item.startswith(lista_posible_i[5]) or item.startswith(lista_posible_i[6]) or item.startswith(lista_posible_i[7]) or item.startswith(lista_posible_i[8]) or item.startswith(lista_posible_i[9]):
                 token = tokenizacion_acciones(item + ";")
@@ -717,14 +754,37 @@ def revisar_bloque(text:str):
                 if item.startswith(key):
                     funcion_propia =  True
                     
+            for key in memoria["nombre_variables"]:
+                if item.startswith(key):
+                    variable =  True
+                    
+            if variable == True:
+                lista_var = []
+                index1 = item.index("=")
+                if index1 == None:
+                    return False
+                name = item[:index1]
+                asig = item[index1 + 1:]
+                lista_var.append(name)
+                lista_var.append("=")
+                lista_var.append(asig)
+                value = assigmentFuncional(lista_var)
+                if value == False:
+                    return False
+                else:
+                    lista_verdad.append(True)
+                    
             if funcion_propia == True:
                 value = lector_funciones(item)  
                 if value == False:
                     return value
                 else:
                     lista_verdad.append(True)  
-            
-            if funcion_propia != True:    
+        
+                
+            if funcion_propia == True or variable == True:
+                pass
+            else:
                 for v in lista_posible_i:
                     if v in item:
                         inicio = True
@@ -763,14 +823,27 @@ def bloque_proc(text:str):
     value = defProcFuncional_parte1(lista_val,memoria)
     if value == False:
         return False
+    memoria["comandos_funcion"][nombre_proc] = bloque
+    if nombre_proc in bloque:
+        index1 = bloque.index(nombre_proc)
+        if bloque[index1-1:index1] == ";":
+            bloque = bloque[:index1 -1] + bloque[index1+len(nombre_proc)+2:]
+            bloque = bloque.replace(nombre_proc,"")
+        if bloque[index1-1:index1] == ";" and bloque[index1 + len(nombre_proc)+ 3] == ";":
+            bloque = bloque[:index1 -1] + bloque[index1+len(nombre_proc)+3:]
+            bloque = bloque.replace(nombre_proc,"")
+        else:
+            bloque = bloque.replace(nombre_proc,"")
+            
+            
     valor = revisar_bloque(bloque)
     values_to_remove = chao_pescado(parametros)
     values_to_remove = values_to_remove.split(",")
-    memoria["comandos_funcion"][nombre_proc] = bloque
     memoria["numeros"] = [x for x in memoria["numeros"] if x not in values_to_remove]
     memoria["direccion1"] = [x for x in memoria["direccion1"] if x not in values_to_remove]
     memoria["direccion2"] = [x for x in memoria["direccion2"] if x not in values_to_remove]
     memoria["punto_cardinal"] = [x for x in memoria["punto_cardinal"] if x not in values_to_remove]
+
     
     return valor
 
@@ -810,11 +883,89 @@ def replace_parameters(text:str,values:list,parameters:list):
     return text
       
             
-    
-    
-    
-
-#print(revisar_bloque("{while can(jump(2,3)){jump(3,2)}}"))
-print(bloque_proc("defProc hola(a,b){walk(a,b)}"))
-print(lector_funciones("hola(1,north)"))
-print(revisar_bloque("{walk(2);hola(1,north)}"))
+def coronador(lista_archivo:list):  
+    lista_posible_i = ["walk","jump","leap","turn","turnto","drop","get","grab","letgo","nop","while","repeat","if"]
+    funcion_propia = False
+    variable = False
+    inicio = False
+    try:
+  
+        for linea in lista_archivo:
+            #linea = linea.replace(" ", "")
+            if linea.startswith("{"):
+                value = revisar_bloque(linea)
+                if value == False:
+                    return False
+                
+            elif linea.startswith("defproc"):
+                value = bloque_proc(linea)
+                if value == False:
+                    return False
+                
+                
+            elif linea.startswith("defvar"):
+                lista = linea.split(" ")
+                value = defVarFuncional(lista,memoria)
+                if value == False:
+                    return False
+                
+            elif linea.startswith(lista_posible_i[0]) or linea.startswith(lista_posible_i[1]) or linea.startswith(lista_posible_i[2]) or linea.startswith(lista_posible_i[3]) or linea.startswith(lista_posible_i[4]) or linea.startswith(lista_posible_i[5]) or linea.startswith(lista_posible_i[6]) or linea.startswith(lista_posible_i[7]) or linea.startswith(lista_posible_i[8]) or linea.startswith(lista_posible_i[9]):
+                value = simpleCommand(linea)
+                if value == False:
+                    return False
+                
+            elif linea.startswith(lista_posible_i[10]):
+                value = check_while(linea)
+                if value == False:
+                    return False
+                
+            elif linea.startswith(lista_posible_i[11]):
+                value = check_rep(linea)
+                if value == False:
+                    return False
+                
+            elif linea.startswith(lista_posible_i[12]):
+                value = check_if(linea)
+                if value == False:
+                    return False
+                
+            for key in memoria["funciones_definidas"].keys():
+                    if linea.startswith(key):
+                        funcion_propia =  True
+            
+            for key in memoria["nombre_variables"]:
+                if linea.startswith(key):
+                    variable =  True
+                    
+            if variable == True:
+                lista_var = []
+                index1 = linea.index("=")
+                if index1 == None:
+                    return False
+                name = linea[:index1]
+                asig = linea[index1+1:]
+                lista_var.append(name)
+                lista_var.append("=")
+                lista_var.append(asig)
+                value = assigmentFuncional(lista_var)
+                if value == False:
+                    return False
+            
+            if funcion_propia == True:
+                value = lector_funciones(linea)
+                if value == False:
+                    return False
+        
+            if (funcion_propia != True) or (variable != True):    
+                    for v in lista_posible_i:
+                        if v in linea or "defvar" in linea or "defproc" in linea:
+                            inicio = True
+                    
+        return inicio
+    except Exception as e:
+        print(repr(e))
+        
+archivo = input("ingrese el nombre del archivo que se desea revisar: ")
+lecturaPrograma(archivo)
+#print(memoria["contenido_programa"])
+print(coronador(memoria["contenido_programa"]))
